@@ -20,7 +20,7 @@ class CaptureClient:
 
 @pytest.mark.asyncio
 async def test_multimodal_completion_embeds_uploaded_image_as_data_url():
-    service = LLMService(Settings())
+    service = LLMService(Settings(llm_api_key="unit-test-key"))
     capture = CaptureClient()
     service._client = capture
 
@@ -34,3 +34,17 @@ async def test_multimodal_completion_embeds_uploaded_image_as_data_url():
     assert content[0] == {"type": "text", "text": "Inspect this space."}
     assert content[1]["type"] == "image_url"
     assert content[1]["image_url"]["url"].startswith("data:image/png;base64,")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("api_key", ["", "replace-with-zhipu-api-key"])
+async def test_missing_or_placeholder_api_key_returns_demo_strategy_json_without_network(
+    api_key,
+):
+    service = LLMService(Settings(llm_api_key=api_key))
+
+    result = await service.complete("Generate a strategic summary with verdict.")
+    await service.close()
+
+    assert '"summary"' in result
+    assert '"score"' in result

@@ -26,10 +26,12 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
   const [sessionToken, setSessionToken] = useState(createSessionToken);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const canSearchAddress =
+    mode === "address" && query.trim().length >= 2 && value?.mode !== "address";
+  const visiblePredictions = canSearchAddress ? predictions : [];
 
   useEffect(() => {
-    if (mode !== "address" || query.trim().length < 2 || value?.mode === "address") {
-      setPredictions([]);
+    if (!canSearchAddress) {
       return;
     }
     const timeout = window.setTimeout(async () => {
@@ -40,7 +42,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
       } catch (err) {
         if (isUnauthorizedError(err)) {
           setError("Session expired. Please sign in again.");
-          window.location.href = "/";
+          window.location.assign("/");
           return;
         }
         setError("Address suggestions are unavailable.");
@@ -49,7 +51,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
       }
     }, 350);
     return () => window.clearTimeout(timeout);
-  }, [mode, query, sessionToken, value?.mode]);
+  }, [canSearchAddress, query, sessionToken]);
 
   function switchMode(nextMode: "current" | "address") {
     setMode(nextMode);
@@ -87,7 +89,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
     } catch (err) {
       if (isUnauthorizedError(err)) {
         setError("Session expired. Please sign in again.");
-        window.location.href = "/";
+        window.location.assign("/");
         return;
       }
       setError("Could not resolve this address.");
@@ -149,9 +151,9 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             placeholder="Search the retail site address"
             className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-zinc-600"
           />
-          {predictions.length > 0 && (
+          {visiblePredictions.length > 0 && (
             <div className="absolute top-full z-20 w-full border border-zinc-700 bg-zinc-950 shadow-xl">
-              {predictions.map((prediction) => (
+              {visiblePredictions.map((prediction) => (
                 <button
                   type="button"
                   key={prediction.placeId}

@@ -19,7 +19,7 @@ class GeoService:
         )
 
     def _headers(self, field_mask: str | None = None) -> dict[str, str]:
-        if not self._api_key:
+        if not self._api_key or self._uses_placeholder_key():
             raise RuntimeError("Google Places API is not configured.")
         headers = {
             "X-Goog-Api-Key": self._api_key,
@@ -145,6 +145,13 @@ class GeoService:
         if distance_meters <= 350:
             return "MEDIUM"
         return "LOW"
+
+    def _uses_placeholder_key(self) -> bool:
+        normalized = self._api_key.strip().lower()
+        return normalized.startswith(("replace-with", "your-")) or normalized in {
+            "changeme",
+            "placeholder",
+        }
 
     async def close(self) -> None:
         if self._owns_client:

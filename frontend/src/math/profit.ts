@@ -17,13 +17,13 @@ export interface ProfitResult {
 
 /**
  * Core profit formula:
- * Net Profit = (DailyTraffic * 30 * Spend * Conversion) - Rent - Fixed Costs
+ * Net Profit = (DailyTraffic * 30 * Spend * Conversion * GrossMargin) - Rent - Fixed Costs
  */
 export function calculateProfit(input: ProfitInput): ProfitResult {
   const monthlyTraffic = input.expectedTraffic * 30;
   const payingCustomers = monthlyTraffic * input.conversionRate;
   const grossRevenue = payingCustomers * input.averageSpend;
-  const netRevenue = grossRevenue;
+  const netRevenue = grossRevenue * input.grossMargin;
   const netProfit = netRevenue - input.baseRent - input.fixedCostNonRent;
 
   return {

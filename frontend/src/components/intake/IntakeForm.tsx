@@ -23,11 +23,11 @@ export function IntakeForm({
     <div className="grid grid-cols-3 gap-4">
       <div className="space-y-2">
         <label className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
-          Target Business
+          Industry
         </label>
         <input
           type="text"
-          placeholder="e.g. Cafe, Boutique"
+          placeholder="Cafe, bakery, boutique"
           value={businessType}
           onChange={(e) => onBusinessTypeChange(e.target.value)}
           className={cn(
@@ -40,7 +40,7 @@ export function IntakeForm({
 
       <div className="space-y-2">
         <label className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
-          Expected Rent
+          Monthly Rent (SGD)
         </label>
         <input
           type="number"
@@ -57,7 +57,7 @@ export function IntakeForm({
 
       <div className="space-y-2">
         <label className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
-          Square Meters
+          Shop Size (sqm)
         </label>
         <input
           type="number"

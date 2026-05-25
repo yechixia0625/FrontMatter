@@ -9,6 +9,7 @@ from src.models.schemas.streaming import AgentLogEvent, ErrorEvent
 from src.pipeline.stream import SSEStreamManager
 from src.services.geo import GeoService
 from src.services.llm import LLMService
+from src.services.scoring import enrich_summary, recommend_locations
 
 
 class AnalysisOrchestrator:
@@ -136,5 +137,17 @@ class AnalysisOrchestrator:
                 "verdict": "APPROVED WITH CONDITIONS",
                 "paybackMonths": 12.0,
             }
+
+        merged["summary"] = enrich_summary(
+            intake,
+            merged["financialModel"],
+            merged["mapData"],
+            merged["summary"],
+        )
+        merged["recommendedLocations"] = recommend_locations(
+            intake,
+            merged["mapData"],
+            merged["summary"],
+        )
 
         return LeaseLensReport(**merged)

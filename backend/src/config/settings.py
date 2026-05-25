@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     # Google Places (server-side only)
     google_places_api_key: str = ""
     google_places_search_radius_meters: int = 500
+    onemap_access_token: str = ""
 
     # Demo auth
     demo_auth_enabled: bool = False

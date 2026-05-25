@@ -9,6 +9,8 @@ import { WhatIfPanel } from "@/components/simulator/WhatIfPanel";
 import { SliderControls } from "@/components/simulator/SliderControls";
 import { useWhatIf } from "@/hooks/useWhatIf";
 import type { AgentLogEvent } from "@/types/streaming";
+import { ScoreBreakdownPanel } from "./ScoreBreakdownPanel";
+import { LocationRecommendations } from "./LocationRecommendations";
 
 interface WorkspaceLayoutProps {
   intake: {
@@ -101,15 +103,19 @@ export function WorkspaceLayout({
           />
         </div>
 
-        {/* Right Pane: What-If (3 cols) */}
-        <div className="w-3/12 flex flex-col">
+        {/* Right Pane: Decision Panel (3 cols) */}
+        <div className="w-3/12 flex flex-col overflow-y-auto">
           {report ? (
-            <WhatIfPanel
-              result={whatIf.result}
-              paybackMonths={whatIf.paybackMonths}
-              rentPressure={whatIf.rentPressure}
-              initialCost={report.financialModel.initialDecorationCost}
-            />
+            <>
+              <ScoreBreakdownPanel summary={report.summary} />
+              <WhatIfPanel
+                result={whatIf.result}
+                paybackMonths={whatIf.paybackMonths}
+                rentPressure={whatIf.rentPressure}
+                initialCost={report.financialModel.initialDecorationCost}
+              />
+              <LocationRecommendations locations={report.recommendedLocations} />
+            </>
           ) : (
             <div className="p-4 font-mono text-xs text-zinc-500">
               [{error ? `ERROR: ${error}` : "AWAITING FINANCIAL REPORT..."}]

@@ -48,6 +48,14 @@ class FastLLM:
         "paybackMonths":9.2}}"""
 
 
+class OverconfidentLLM(FastLLM):
+    async def complete(self, prompt: str, system: str = "", **kwargs) -> str:
+        if "strategic summary" in prompt:
+            return """{"summary":{"score":100,"verdict":"APPROVED",
+            "paybackMonths":6.0}}"""
+        return await super().complete(prompt, system, **kwargs)
+
+
 @pytest.fixture
 def fake_intake():
     return SpaceIntakeRequest(
@@ -99,3 +107,28 @@ async def test_places_failure_returns_unavailable_market_without_fake_competitor
 
     assert payload["mapData"]["status"] == "unavailable"
     assert payload["mapData"]["competitors"] == []
+
+
+@pytest.mark.asyncio
+async def test_report_includes_fixed_llm_score_breakdown_and_recommendations(fake_intake):
+    chunks = await collect_chunks(AnalysisOrchestrator(FastLLM(), FakeGeo()), fake_intake)
+    payload = json.loads(chunks[-1].split("data: ", 1)[1])
+
+    breakdown = payload["summary"]["scoreBreakdown"]
+    assert breakdown["maxFixedScore"] == 60
+    assert breakdown["maxLlmScore"] == 40
+    assert 0 <= breakdown["fixedScore"] <= 60
+    assert 0 <= breakdown["llmScore"] <= 40
+    assert payload["summary"]["score"] == breakdown["totalScore"]
+    assert sum(component["maxScore"] for component in breakdown["components"]) == 60
+    assert len(payload["recommendedLocations"]) == 3
+    assert all(location["country"] == "Singapore" for location in payload["recommendedLocations"])
+
+
+@pytest.mark.asyncio
+async def test_strategy_llm_score_is_clamped_to_forty_points(fake_intake):
+    chunks = await collect_chunks(AnalysisOrchestrator(OverconfidentLLM(), FakeGeo()), fake_intake)
+    payload = json.loads(chunks[-1].split("data: ", 1)[1])
+
+    assert payload["summary"]["scoreBreakdown"]["llmScore"] == 40
+    assert payload["summary"]["score"] <= 100

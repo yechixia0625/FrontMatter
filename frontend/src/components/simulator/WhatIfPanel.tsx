@@ -18,7 +18,7 @@ export function WhatIfPanel({
   initialCost,
 }: WhatIfPanelProps) {
   return (
-    <div className="flex flex-col h-full p-4 space-y-4 overflow-auto">
+    <div className="flex flex-col p-4 space-y-4">
       <div className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
         What-If Simulator
       </div>

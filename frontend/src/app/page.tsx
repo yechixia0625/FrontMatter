@@ -93,7 +93,7 @@ export default function IntakePage() {
             Lease<span className="text-zinc-500">Lens</span>
           </h1>
           <p className="text-zinc-500 font-mono text-sm">
-            Commercial Spatial Intelligence Platform
+            Singapore shop-location intelligence for small businesses
           </p>
         </div>
 
