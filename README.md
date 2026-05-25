@@ -1,44 +1,60 @@
 # LeaseLensAI
 
-LeaseLensAI 是一个商业空间分析系统，包含：
+LeaseLensAI 是一个面向商业铺位评估的本地部署系统。用户上传铺位照片，输入业态、租金和面积后，系统会结合多智能体分析、经营决策平面图和真实周边地点数据，给出开店可行性判断。
 
-- 图片上传与多智能体流式分析
-- 面向经营决策的空间平面图
-- 基于 Google Places 的周边真实市场地图
-- 基于 Docker 的本地开发与部署流程
+## 功能概览
 
-## 环境要求
+- 上传铺位图片并发起分析
+- 多智能体实时输出分析日志
+- 生成面向经营决策的空间 Blueprint
+- 使用 Google Places 展示真实周边竞争环境
+- 提供本地 What-if 模拟面板，快速调整租金与营收假设
+- 支持 Docker 一键启动
 
-- 安装 Docker Desktop 或 Docker Engine，并带有 Compose 支持
-- 从 `.env.example` 复制一份 `.env`
-- 有可用的 LLM API Key
-- 有可用的 Google Places API (New) Key
+## 技术栈
 
-`.env` 中至少需要填写：
+- Frontend: Next.js
+- Backend: FastAPI
+- Database: PostgreSQL + pgvector
+- Cache: Redis
+- Reverse Proxy: Nginx
+- LLM: 智谱 GLM
+- 地点数据: Google Places API (New)
 
-- `LEASENS_LLM_API_KEY`
-- `LEASENS_GOOGLE_PLACES_API_KEY`
+## 快速开始
 
-当前项目默认接入的 LLM 为智谱 GLM 系列模型。部署时请提供可用的 GLM API Key，并在 `.env` 中按项目要求配置对应模型名称。
+### 1. 环境要求
 
-`LEASENS_GOOGLE_PLACES_API_KEY` 申请入口：
+- Docker Desktop 或 Docker Engine
+- Docker Compose
+- 可用的智谱 GLM API Key
+- 可用的 Google Places API (New) Key
 
-- Google Maps Platform 控制台：<https://console.cloud.google.com/google/maps-apis/start>
-- Places API (New) 获取 API Key 官方说明：<https://developers.google.com/maps/documentation/places/web-service/get-api-key>
+### 2. 配置环境变量
 
-申请时需要完成：
-
-- 创建或选择一个 Google Cloud 项目
-- 绑定 Billing Account
-- 启用 `Places API (New)`
-- 创建 API Key，并限制为仅允许 `Places API (New)`
-
-## 推荐的 GitHub 部署方式
-
-给其他开发者或跨平台本地部署时，推荐使用便携版 Compose 配置：
+先复制一份环境变量模板：
 
 ```bash
 cp .env.example .env
+```
+
+至少需要配置以下字段：
+
+- `LEASENS_LLM_API_KEY`
+- `LEASENS_LLM_MODEL`
+- `LEASENS_GOOGLE_PLACES_API_KEY`
+
+当前项目默认使用智谱 GLM 系列模型，`.env.example` 中默认模型为：
+
+```text
+glm-4.1v-thinking-flash
+```
+
+### 3. 启动系统
+
+对外公开部署、跨平台本地部署，统一使用这份 Compose 配置：
+
+```bash
 docker compose -f docker-compose.portable.yml up --build -d
 ```
 
@@ -48,56 +64,86 @@ docker compose -f docker-compose.portable.yml up --build -d
 http://localhost:8080/
 ```
 
-`docker-compose.portable.yml` 的特点：
-
-- 使用标准 Docker bridge 网络
-- `api -> db` 通过 `db:5432`
-- `api -> redis` 通过 `redis:6379`
-- `nginx -> api` 通过 `api:8000`
-- 不依赖 `network_mode: host`
-
-## 当前仓库中的默认 Compose
-
-仓库根目录的 `docker-compose.yml` 是当前维护者机器专用的本地配置。
-
-保留它的原因是：
-
-- 它适配当前 Linux 宿主机
-- 它适配本机代理与网络约束
-
-除非你明确知道自己要复用这套拓扑，否则不要把它当作 GitHub 用户的默认启动方式。
-
-## Windows 说明
-
-Windows 环境建议使用 Docker Desktop，并保持在 Linux containers 模式下运行。
-
-推荐启动方式：
+### 4. 停止系统
 
 ```bash
-docker compose -f docker-compose.portable.yml up --build -d
+docker compose -f docker-compose.portable.yml down
 ```
 
-不要默认使用仓库中的 `docker-compose.yml`，因为那份配置偏向当前维护者本机环境。
+## 环境变量说明
 
-## 代理说明
+### LLM 相关
 
-如果你的网络环境需要 HTTP 代理，请在 `.env` 中按需设置：
+- `LEASENS_LLM_API_KEY`：智谱 API Key
+- `LEASENS_LLM_BASE_URL`：智谱接口地址
+- `LEASENS_LLM_MODEL`：使用的 GLM 模型名称
+- `LEASENS_LLM_TIMEOUT_SECONDS`：模型调用超时秒数
+
+### Google Places 相关
+
+- `LEASENS_GOOGLE_PLACES_API_KEY`：Google Places API (New) 服务端 Key
+- `LEASENS_GOOGLE_PLACES_SEARCH_RADIUS_METERS`：附近搜索半径，单位米
+
+### 代理相关
+
+如果你的网络环境访问 Docker Hub、智谱或 Google API 需要代理，请按需配置：
 
 - `DOCKER_BUILD_HTTP_PROXY`
 - `DOCKER_BUILD_HTTPS_PROXY`
+- `DOCKER_BUILD_NO_PROXY`
 - `DOCKER_RUNTIME_HTTP_PROXY`
 - `DOCKER_RUNTIME_HTTPS_PROXY`
+- `DOCKER_RUNTIME_NO_PROXY`
 
-在 Docker Desktop 环境中，如果代理运行在宿主机上，通常应使用
-`host.docker.internal` 作为容器访问宿主机的地址。
+如果你不需要代理，这些变量可以留空。
 
-## 验证命令
+## Google Places API Key 申请
+
+申请入口：
+
+- Google Maps Platform 控制台：<https://console.cloud.google.com/google/maps-apis/start>
+- Places API (New) 官方说明：<https://developers.google.com/maps/documentation/places/web-service/get-api-key>
+
+申请时需要完成：
+
+1. 创建或选择一个 Google Cloud 项目
+2. 绑定 Billing Account
+3. 启用 `Places API (New)`
+4. 创建 API Key
+5. 将 Key 限制为仅允许 `Places API (New)`
+
+说明：
+
+- 地址搜索和真实周边地点查询都依赖 Google Places API
+- 该 Key 仅在后端使用，不应暴露到前端代码中
+
+## 使用方式
+
+启动后，典型流程如下：
+
+1. 打开 `http://localhost:8080/`
+2. 上传铺位图片
+3. 填写业态、月租金、面积
+4. 选择定位方式：
+   - 使用当前位置
+   - 输入地址并搜索定位
+5. 点击分析
+6. 在工作台中查看：
+   - 四个 Agent 的实时分析输出
+   - `Decision Plan` 决策型 Blueprint
+   - `Live Market` 真实周边地图
+
+## 部署验证
 
 健康检查：
 
 ```bash
 curl -i http://127.0.0.1:8080/api/v1/health
 ```
+
+预期结果：
+
+- 返回 `HTTP 200`
 
 地址搜索检查：
 
@@ -109,19 +155,97 @@ curl -i -X POST http://127.0.0.1:8080/api/locations/autocomplete \
 
 预期结果：
 
-- 健康检查返回 `200`
-- 地址搜索返回 `200`，并且响应体中包含 `predictions`
+- 返回 `HTTP 200`
+- 响应体中包含 `predictions`
+
+## Compose 文件说明
+
+仓库中包含两份 Compose 配置：
+
+### `docker-compose.portable.yml`
+
+这是公开部署的默认方案，适合：
+
+- GitHub 用户本地部署
+- Windows / macOS / Linux 跨平台使用
+- 标准 Docker bridge 网络环境
+
+特点：
+
+- 容器间通过服务名通信
+- `api` 连接 `db:5432` 与 `redis:6379`
+- `nginx` 反代到 `api:8000`
+- 不依赖 `network_mode: host`
+
+### `docker-compose.yml`
+
+这是维护者当前机器使用的本地配置，不作为公开部署默认入口。它可能包含针对特定宿主机网络、代理或端口环境的调整。
+
+如果你只是从 GitHub 克隆项目并本地运行，请优先使用：
+
+```bash
+docker compose -f docker-compose.portable.yml up --build -d
+```
+
+## Windows 说明
+
+- 建议使用 Docker Desktop
+- 建议保持在 Linux containers 模式
+- 推荐直接使用 `docker-compose.portable.yml`
+- 如果宿主机代理运行在本机，通常应通过 `host.docker.internal` 供容器访问
 
 ## 常见问题
 
-如果镜像构建失败：
+### 1. Docker 镜像拉取失败
 
-- 检查 Docker 代理变量是否正确
+表现：
+
+- 拉取 `python`、`node`、`nginx`、`pgvector` 等镜像时报超时
+
+排查：
+
 - 检查 Docker 是否能访问 Docker Hub
+- 如果需要代理，确认 `DOCKER_BUILD_HTTP_PROXY` 和 `DOCKER_BUILD_HTTPS_PROXY` 已正确配置
 
-如果地址搜索返回 `503`：
+### 2. 地址搜索返回 503
+
+表现：
+
+- 页面提示 `Address suggestions are unavailable.`
+- 或接口返回 `{"detail":"Location search is unavailable."}`
+
+排查：
 
 - 确认 `LEASENS_GOOGLE_PLACES_API_KEY` 已配置
-- 确认 Google Places API (New) 已启用
-- 确认运行时代理配置与你的机器网络环境一致
-# LeaselensAI
+- 确认 `Places API (New)` 已启用
+- 确认运行时代理配置允许后端访问 Google Places
+
+### 3. 页面上传图片时报 413
+
+表现：
+
+- 页面提示 `HTTP 413`
+
+原因：
+
+- 请求体超过 Nginx 限制
+
+当前仓库中的 Nginx 配置已为图片上传调整过请求大小限制。如果你自行改过 Nginx 配置，需要同步检查 `client_max_body_size`。
+
+### 4. 端口冲突
+
+默认对外端口为：
+
+- `8080`
+
+如果宿主机该端口已被占用，可在 `.env` 中调整：
+
+```text
+PUBLIC_HTTP_PORT="8081"
+```
+
+## 安全说明
+
+- 不要将真实 `.env` 提交到 Git 仓库
+- `.env` 中的 LLM Key 和 Google Places Key 都应视为敏感信息
+- 如果密钥曾经暴露，请立即在服务提供方后台轮换
