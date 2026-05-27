@@ -55,8 +55,9 @@ Generate a 2D spatial blueprint analysis. Return ONLY valid JSON matching this s
     ],
     "heatZones": [
       {{"x": <0-100>, "y": <0-100>, "radius": <size>,
-        "intensity": <0.0-1.0>, "type": "high_profit"}},
-      {{"x": <0-100>, "y": <0-100>, "radius": <size>, "intensity": <0.0-1.0>, "type": "dead_zone"}}
+        "intensity": <0.0-1.0>, "type": "high_visibility"}},
+      {{"x": <0-100>, "y": <0-100>, "radius": <size>,
+        "intensity": <0.0-1.0>, "type": "operational_friction"}}
     ],
     "flowPath": [
       {{"x": <0-100>, "y": <0-100>}},
@@ -74,8 +75,8 @@ Generate a 2D spatial blueprint analysis. Return ONLY valid JSON matching this s
 Consider:
 - Entrance placement for maximum foot traffic visibility
 - Window displays for street-facing sides
-- High-profit zones near entrance and windows
-- Dead zones in corners and back areas
+- High-visibility merchandising opportunities near entrance and windows
+- Operational-friction zones in corners and back areas
 - Optimal layout for {intake.business_type} operations
 - Do not override explicit utility, gas, exhaust, floor-trap, or grease-trap inputs.
 - If the photo suggests a mismatch with the user input, describe it as a risk in zoneInsights."""
@@ -100,8 +101,14 @@ Consider:
                     {"type": "window", "x": 0, "y": 0, "w": 5, "h": 30, "label": "Street Display"},
                 ],
                 "heatZones": [
-                    {"x": 20, "y": 20, "radius": 15, "intensity": 0.9, "type": "high_profit"},
-                    {"x": 80, "y": 80, "radius": 20, "intensity": 0.2, "type": "dead_zone"},
+                    {"x": 20, "y": 20, "radius": 15, "intensity": 0.9, "type": "high_visibility"},
+                    {
+                        "x": 80,
+                        "y": 80,
+                        "radius": 20,
+                        "intensity": 0.2,
+                        "type": "operational_friction",
+                    },
                 ],
                 "flowPath": [{"x": 5, "y": 50}, {"x": 34, "y": 50}, {"x": 62, "y": 28}],
                 "zoneInsights": [

@@ -10,8 +10,8 @@ export function HeatOverlay({ heatZones }: HeatOverlayProps) {
   return (
     <div className="absolute inset-0 pointer-events-none">
       {heatZones.map((zone, i) => {
-        const isHighProfit = zone.type === "high_profit";
-        const color = isHighProfit
+        const isOpportunity = zone.type === "high_visibility";
+        const color = isOpportunity
           ? "rgba(34, 197, 94, VAR_OPACITY)"
           : "rgba(239, 68, 68, VAR_OPACITY)";
         const colorWithOpacity = color.replace(

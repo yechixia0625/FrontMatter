@@ -78,8 +78,8 @@ class LLMService:
             {"type":"door","x":0,"y":42,"w":5,"h":18,"label":"Main Entrance"},
             {"type":"window","x":0,"y":8,"w":5,"h":28,"label":"Street Display"}],
             "heatZones":[{"x":22,"y":28,"radius":16,"intensity":0.82,
-            "type":"high_profit"},{"x":78,"y":78,"radius":18,"intensity":0.24,
-            "type":"dead_zone"}],"flowPath":[{"x":5,"y":51},{"x":34,"y":48},
+            "type":"high_visibility"},{"x":78,"y":78,"radius":18,"intensity":0.24,
+            "type":"operational_friction"}],"flowPath":[{"x":5,"y":51},{"x":34,"y":48},
             {"x":62,"y":32}],"zoneInsights":[{"x":22,"y":44,
             "type":"opportunity","title":"ENTRY CONVERSION",
             "reason":"Use first sightline for fast-moving, high-margin items."},
@@ -89,5 +89,5 @@ class LLMService:
             return """{"financialModel":{"baseRent":5200,"expectedTraffic":135,
             "conversionRate":0.09,"averageSpend":32,"grossMargin":0.64,
             "fixedCostNonRent":2400,"initialDecorationCost":48000}}"""
-        return """{"summary":{"score":78,"verdict":"APPROVED WITH CONDITIONS",
-        "paybackMonths":14.0}}"""
+        return """{"summary":{"score":0,"verdict":"ADVISORY ONLY - DCF CONTROLS DECISION",
+        "paybackMonths":0}}"""

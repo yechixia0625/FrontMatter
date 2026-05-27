@@ -74,7 +74,7 @@ export function SVGBlueprint({ blueprint }: SVGBlueprintProps) {
           <pattern id="decision-grid" width="4" height="4" patternUnits="userSpaceOnUse">
             <circle cx="2" cy="2" r="0.13" fill="rgba(255,255,255,0.18)" />
           </pattern>
-          <radialGradient id="revenue-zone">
+          <radialGradient id="visibility-zone">
             <stop stopColor="#bed269" stopOpacity="0.33" />
             <stop offset="1" stopColor="#bed269" stopOpacity="0" />
           </radialGradient>
@@ -90,7 +90,7 @@ export function SVGBlueprint({ blueprint }: SVGBlueprintProps) {
             cx={zone.x}
             cy={zone.y}
             r={zone.radius}
-            fill={zone.type === "high_profit" ? "url(#revenue-zone)" : "url(#friction-zone)"}
+            fill={zone.type === "high_visibility" ? "url(#visibility-zone)" : "url(#friction-zone)"}
           />
         ))}
         {blueprint.elements.map(renderElement)}

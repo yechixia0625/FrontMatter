@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class StrategyAgent(BaseAgent):
-    """Synthesizes all inputs and generates strategic verdict + summary."""
+    """Produces advisory narrative signals outside the deterministic score."""
 
     @property
     def name(self) -> str:
@@ -47,26 +47,21 @@ Evaluate this commercial lease opportunity:
 - Wastewater readiness: {intake.wastewater_readiness}
 - Approved use status: {intake.approved_use_status}
 
-Produce an advisory screening signal. The final numeric lease score is calculated
-separately from structured inputs and verified data. Return ONLY valid JSON matching this structure:
+Produce advisory screening notes only. The final score, verdict and financial metrics
+are calculated separately from structured inputs and deterministic cash flow. For
+compatibility, return ONLY valid JSON matching this structure and use the fixed values shown:
 {{
   "summary": {{
-    "score": <0-100 overall score>,
-    "verdict": "<APPROVED | APPROVED WITH CONDITIONS | REJECTED>",
-    "paybackMonths": <estimated months to recoup initial investment>
+    "score": 0,
+    "verdict": "ADVISORY ONLY - DCF CONTROLS DECISION",
+    "paybackMonths": 0
   }}
 }}
 
-Scoring criteria:
-- 80-100: Strong opportunity, approve with confidence
-- 60-79: Viable with conditions, negotiate terms
-- Below 60: High risk, recommend rejection
-
-Consider location economics, market saturation, and ROI potential.
 Consider Singapore F&B due diligence: SFA food shop licensing, PUB grease trap,
 SCDF kitchen exhaust/fire safety, EMA licensed electrical/gas workers, and
-BCA/HDB/URA A&A or change-of-use checks. This is a screening recommendation,
-not a substitute for professional approval."""
+BCA/HDB/URA A&A or change-of-use checks. Do not state an approval decision or
+estimate financial returns."""
 
     def parse_response(self, raw_llm_output: str) -> dict:
         try:
@@ -82,9 +77,9 @@ not a substitute for professional approval."""
     def _fallback_summary(self) -> dict:
         return {
             "summary": {
-                "score": 72,
-                "verdict": "APPROVED WITH CONDITIONS",
-                "paybackMonths": 12.5,
+                "score": 0,
+                "verdict": "ADVISORY ONLY - DCF CONTROLS DECISION",
+                "paybackMonths": 0,
             }
         }
 

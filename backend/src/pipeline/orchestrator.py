@@ -137,9 +137,9 @@ class AnalysisOrchestrator:
             }
         if "summary" not in merged:
             merged["summary"] = {
-                "score": 70,
-                "verdict": "APPROVED WITH CONDITIONS",
-                "paybackMonths": 12.0,
+                "score": 0,
+                "verdict": "ADVISORY ONLY - DCF CONTROLS DECISION",
+                "paybackMonths": 0,
             }
 
         merged["economicAnalysis"] = build_economic_analysis(intake, merged["financialModel"])

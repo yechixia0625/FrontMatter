@@ -15,7 +15,7 @@ class HeatZone(BaseModel):
     y: float
     radius: float
     intensity: float = Field(ge=0.0, le=1.0)
-    type: str = Field(..., pattern="^(high_profit|dead_zone|neutral)$")
+    type: str = Field(..., pattern="^(high_visibility|operational_friction|neutral)$")
 
 
 class FlowPoint(BaseModel):
