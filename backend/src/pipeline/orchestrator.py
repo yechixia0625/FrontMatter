@@ -8,6 +8,7 @@ from src.models.schemas.report import LeaseLensReport
 from src.models.schemas.streaming import AgentLogEvent, ErrorEvent
 from src.pipeline.stream import SSEStreamManager
 from src.services.benchmarks import BenchmarkService
+from src.services.candidate_comparison import compare_candidates
 from src.services.geo import GeoService
 from src.services.llm import LLMService
 from src.services.scoring import build_economic_analysis, enrich_summary, recommend_locations
@@ -21,6 +22,7 @@ class AnalysisOrchestrator:
 
     def __init__(self, llm_service: LLMService, geo_service: GeoService):
         self._llm = llm_service
+        self._geo = geo_service
         self._agents = get_all_agents(geo_service)
         self._benchmarks = BenchmarkService()
 
@@ -44,7 +46,7 @@ class AnalysisOrchestrator:
             yield SSEStreamManager.format_sse("error", error_event.model_dump())
             return
 
-        final_report = self._assemble_report(results, intake)
+        final_report = await self._assemble_report(results, intake)
         yield SSEStreamManager.format_data(final_report.model_dump())
 
     async def _run_agents(
@@ -96,7 +98,7 @@ class AnalysisOrchestrator:
             raise
         return partial_data
 
-    def _assemble_report(
+    async def _assemble_report(
         self, results: list[dict | BaseException], intake: SpaceIntakeRequest
     ) -> LeaseLensReport:
         """Merge all agent partial outputs into the final LeaseLensReport."""
@@ -154,5 +156,12 @@ class AnalysisOrchestrator:
             merged["mapData"],
             merged["summary"],
         )
+        comparisons = await compare_candidates(
+            intake,
+            intake.candidate_sites,
+            self._geo,
+            self._benchmarks,
+        )
+        merged["candidateComparisons"] = [item.model_dump() for item in comparisons]
 
         return LeaseLensReport(**merged)

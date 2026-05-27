@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from src.api.deps import provide_analysis_service, provide_settings
@@ -239,6 +241,64 @@ async def test_analyze_space_rejects_zero_lease_term(client):
             "expected_rent": "5200",
             "square_meters": "80",
             "lease_term_months": "0",
+            **VALID_LOCATION,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_analyze_space_accepts_up_to_three_user_selected_candidate_sites(client):
+    candidates = [
+        {
+            "label": "Candidate A",
+            "monthlyRent": 4500,
+            "latitude": 1.301,
+            "longitude": 103.851,
+        },
+        {
+            "label": "Candidate B",
+            "monthlyRent": 5200,
+            "latitude": 1.302,
+            "longitude": 103.852,
+        },
+    ]
+    response = await client.post(
+        "/api/analyze-space",
+        files={"photo": ("unit.png", b"\x89PNG\r\n\x1a\n", "image/png")},
+        data={
+            "business_type": "Cafe",
+            "expected_rent": "5200",
+            "square_meters": "80",
+            "candidate_sites_json": json.dumps(candidates),
+            **VALID_LOCATION,
+        },
+    )
+
+    assert response.status_code == 200
+    assert len(StubAnalysisService.seen_intake.candidate_sites) == 2
+
+
+@pytest.mark.asyncio
+async def test_analyze_space_rejects_more_than_three_candidate_sites(client):
+    candidates = [
+        {
+            "label": f"Candidate {index}",
+            "monthlyRent": 4500,
+            "latitude": 1.301 + index / 1000,
+            "longitude": 103.851,
+        }
+        for index in range(4)
+    ]
+    response = await client.post(
+        "/api/analyze-space",
+        files={"photo": ("unit.png", b"\x89PNG\r\n\x1a\n", "image/png")},
+        data={
+            "business_type": "Cafe",
+            "expected_rent": "5200",
+            "square_meters": "80",
+            "candidate_sites_json": json.dumps(candidates),
             **VALID_LOCATION,
         },
     )

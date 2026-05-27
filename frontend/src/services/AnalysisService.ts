@@ -69,6 +69,9 @@ export class AnalysisService {
     if (intake.location.siteLabel) {
       formData.append("site_label", intake.location.siteLabel);
     }
+    if (intake.candidateSites && intake.candidateSites.length > 0) {
+      formData.append("candidate_sites_json", JSON.stringify(intake.candidateSites));
+    }
     return formData;
   }
 

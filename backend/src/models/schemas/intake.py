@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from src.models.schemas.candidate import CandidateSiteInput
+
 Readiness = Literal["yes", "no", "unknown"]
 CookingIntensity = Literal["none", "light", "full", "unknown"]
 FloorPosition = Literal["basement", "ground", "upper", "mall", "unknown"]
@@ -22,6 +24,7 @@ class SpaceIntakeRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     site_label: str | None = None
+    candidate_sites: list[CandidateSiteInput] = Field(default_factory=list, max_length=3)
 
     lease_term_months: int | None = Field(None, gt=0)
     service_charge_monthly: float = Field(0, ge=0)

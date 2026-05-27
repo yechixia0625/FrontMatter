@@ -11,6 +11,10 @@ import {
 } from "@/components/intake/IntakeForm";
 import { AnalyzeButton } from "@/components/intake/AnalyzeButton";
 import { LocationSelector } from "@/components/intake/LocationSelector";
+import {
+  CandidateSitesSelector,
+  type CandidateDraft,
+} from "@/components/intake/CandidateSitesSelector";
 import { AuthService } from "@/services/authService";
 import { storePendingAnalysis } from "@/services/intakeTransfer";
 import type { AnalysisIntake, SiteLocation } from "@/services/intakeTransfer";
@@ -24,6 +28,7 @@ export default function IntakePage() {
     DEFAULT_INTAKE_FORM_VALUES
   );
   const [location, setLocation] = useState<SiteLocation | null>(null);
+  const [candidateSites, setCandidateSites] = useState<CandidateDraft[]>([]);
 
   const supportedFile =
     file !== null &&
@@ -61,7 +66,7 @@ export default function IntakePage() {
 
   const handleAnalyze = () => {
     if (!canAnalyze) return;
-    const intake = buildAnalysisIntake(formValues, location!);
+    const intake = buildAnalysisIntake(formValues, location!, candidateSites);
 
     storePendingAnalysis({
       file: file!,
@@ -117,6 +122,7 @@ export default function IntakePage() {
         />
 
         <LocationSelector value={location} onChange={setLocation} />
+        <CandidateSitesSelector candidates={candidateSites} onChange={setCandidateSites} />
 
         {/* Analyze Button */}
         <AnalyzeButton disabled={!canAnalyze} onClick={handleAnalyze} />
@@ -127,7 +133,8 @@ export default function IntakePage() {
 
 function buildAnalysisIntake(
   values: IntakeFormValues,
-  location: SiteLocation
+  location: SiteLocation,
+  candidateDrafts: CandidateDraft[]
 ): AnalysisIntake {
   return {
     businessType: values.businessType,
@@ -174,6 +181,20 @@ function buildAnalysisIntake(
     signageVisibility: values.signageVisibility,
     exhaustRouteAvailable: values.exhaustRouteAvailable,
     location,
+    candidateSites: candidateDrafts.flatMap((candidate) => {
+      const monthlyRent = Number(candidate.monthlyRent);
+      if (!candidate.location || !Number.isFinite(monthlyRent) || monthlyRent <= 0) {
+        return [];
+      }
+      return [
+        {
+          label: candidate.location.siteLabel ?? "Current location candidate",
+          monthlyRent,
+          latitude: candidate.location.latitude,
+          longitude: candidate.location.longitude,
+        },
+      ];
+    }),
   };
 }
 

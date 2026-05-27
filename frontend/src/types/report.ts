@@ -140,5 +140,18 @@ export interface LeaseLensReport {
   economicAnalysis: EconomicAnalysis;
   marketBenchmarks: MarketBenchmarkBundle;
   mapData: MapData;
+  candidateComparisons: CandidateEvaluation[];
   recommendedLocations: CandidateLocation[];
+}
+
+export interface CandidateEvaluation {
+  label: string;
+  monthlyRent: number;
+  latitude: number;
+  longitude: number;
+  summary: Summary;
+  financialModel: FinancialModel;
+  economicAnalysis: EconomicAnalysis;
+  marketBenchmarks: MarketBenchmarkBundle;
+  mapData: MapData;
 }

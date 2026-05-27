@@ -4,6 +4,7 @@ import time
 
 import pytest
 
+from src.models.schemas.candidate import CandidateSiteInput
 from src.models.schemas.intake import SpaceIntakeRequest
 from src.pipeline.orchestrator import AnalysisOrchestrator
 
@@ -155,3 +156,20 @@ async def test_strategy_llm_score_does_not_change_traceable_total(fake_intake):
 
     assert payload["summary"]["scoreBreakdown"]["llmScore"] == 0
     assert payload["summary"]["score"] <= 100
+
+
+@pytest.mark.asyncio
+async def test_report_compares_only_user_submitted_candidate_sites(fake_intake):
+    candidate = CandidateSiteInput(
+        label="User selected option",
+        monthlyRent=4100,
+        latitude=1.305,
+        longitude=103.86,
+    )
+    intake = fake_intake.model_copy(update={"candidate_sites": [candidate]})
+    chunks = await collect_chunks(AnalysisOrchestrator(FastLLM(), FakeGeo()), intake)
+    payload = json.loads(chunks[-1].split("data: ", 1)[1])
+
+    assert len(payload["candidateComparisons"]) == 1
+    assert payload["candidateComparisons"][0]["label"] == "User selected option"
+    assert payload["candidateComparisons"][0]["financialModel"]["baseRent"] == 4100

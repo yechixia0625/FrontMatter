@@ -1,10 +1,12 @@
+import json
 from typing import Literal
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from src.api.deps import provide_analysis_service, require_demo_auth
+from src.models.schemas.candidate import CandidateSiteInput
 from src.models.schemas.intake import (
     ApprovedUseStatus,
     CookingIntensity,
@@ -71,6 +73,7 @@ async def analyze_space(
     latitude: float = Form(..., ge=-90, le=90),
     longitude: float = Form(..., ge=-180, le=180),
     site_label: str | None = Form(None),
+    candidate_sites_json: str | None = Form(None),
     _username: str | None = Depends(require_demo_auth),
     analysis_service: AnalysisService = Depends(provide_analysis_service),
 ):
@@ -88,6 +91,9 @@ async def analyze_space(
         raise HTTPException(status_code=413, detail="The uploaded image exceeds 10 MB.")
 
     try:
+        candidate_sites = TypeAdapter(list[CandidateSiteInput]).validate_json(
+            candidate_sites_json or "[]"
+        )
         intake = SpaceIntakeRequest(
             photo_bytes=photo_bytes,
             photo_filename=photo.filename,
@@ -139,8 +145,9 @@ async def analyze_space(
             latitude=latitude,
             longitude=longitude,
             site_label=site_label,
+            candidate_sites=candidate_sites,
         )
-    except ValidationError as exc:
+    except (ValidationError, json.JSONDecodeError) as exc:
         raise HTTPException(
             status_code=422,
             detail=exc.errors(include_input=False, include_context=False),

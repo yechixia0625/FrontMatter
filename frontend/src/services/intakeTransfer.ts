@@ -49,6 +49,7 @@ export interface AnalysisIntake {
   signageVisibility?: Readiness;
   exhaustRouteAvailable?: Readiness;
   location: SiteLocation;
+  candidateSites?: CandidateSite[];
 }
 
 export interface SiteLocation {
@@ -56,6 +57,13 @@ export interface SiteLocation {
   latitude: number;
   longitude: number;
   siteLabel?: string;
+}
+
+export interface CandidateSite {
+  label: string;
+  monthlyRent: number;
+  latitude: number;
+  longitude: number;
 }
 
 export interface PendingAnalysis {

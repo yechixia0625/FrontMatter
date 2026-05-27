@@ -13,6 +13,7 @@ import type { AgentLogEvent } from "@/types/streaming";
 import { ScoreBreakdownPanel } from "./ScoreBreakdownPanel";
 import { EconomicAnalysisPanel } from "./EconomicAnalysisPanel";
 import { MarketEvidencePanel } from "./MarketEvidencePanel";
+import { CandidateComparisonPanel } from "./CandidateComparisonPanel";
 
 interface WorkspaceLayoutProps {
   intake: AnalysisIntake;
@@ -122,6 +123,7 @@ export function WorkspaceLayout({
               <ScoreBreakdownPanel summary={report.summary} />
               <EconomicAnalysisPanel analysis={report.economicAnalysis} />
               <MarketEvidencePanel benchmarks={report.marketBenchmarks} />
+              <CandidateComparisonPanel candidates={report.candidateComparisons} />
               <WhatIfPanel
                 result={whatIf.result}
                 paybackMonths={whatIf.paybackMonths}
