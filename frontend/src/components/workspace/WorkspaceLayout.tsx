@@ -14,6 +14,7 @@ import { ScoreBreakdownPanel } from "./ScoreBreakdownPanel";
 import { EconomicAnalysisPanel } from "./EconomicAnalysisPanel";
 import { MarketEvidencePanel } from "./MarketEvidencePanel";
 import { CandidateComparisonPanel } from "./CandidateComparisonPanel";
+import { CalibrationPanel } from "./CalibrationPanel";
 
 interface WorkspaceLayoutProps {
   intake: AnalysisIntake;
@@ -124,6 +125,7 @@ export function WorkspaceLayout({
               <EconomicAnalysisPanel analysis={report.economicAnalysis} />
               <MarketEvidencePanel benchmarks={report.marketBenchmarks} />
               <CandidateComparisonPanel candidates={report.candidateComparisons} />
+              <CalibrationPanel businessType={intake.businessType} report={report} />
               <WhatIfPanel
                 result={whatIf.result}
                 paybackMonths={whatIf.paybackMonths}
