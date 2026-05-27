@@ -64,11 +64,11 @@ export default function IntakePage() {
     };
   }, []);
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!canAnalyze) return;
     const intake = buildAnalysisIntake(formValues, location!, candidateSites);
 
-    storePendingAnalysis({
+    await storePendingAnalysis({
       file: file!,
       intake,
     });
@@ -125,7 +125,7 @@ export default function IntakePage() {
         <CandidateSitesSelector candidates={candidateSites} onChange={setCandidateSites} />
 
         {/* Analyze Button */}
-        <AnalyzeButton disabled={!canAnalyze} onClick={handleAnalyze} />
+        <AnalyzeButton disabled={!canAnalyze} onClick={() => void handleAnalyze()} />
       </div>
     </main>
   );

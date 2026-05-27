@@ -11,6 +11,7 @@ interface AnalyzeButtonProps {
 export function AnalyzeButton({ disabled, onClick }: AnalyzeButtonProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
       className={cn(

@@ -4,7 +4,6 @@ import { useState } from "react";
 import type { LeaseLensReport } from "@/types/report";
 import { SVGBlueprint } from "@/components/spatial/SVGBlueprint";
 import { MapToggle } from "@/components/spatial/MapToggle";
-import { TerminalGrid } from "@/components/workspace/TerminalGrid";
 import { WhatIfPanel } from "@/components/simulator/WhatIfPanel";
 import { SliderControls } from "@/components/simulator/SliderControls";
 import { useWhatIf } from "@/hooks/useWhatIf";
@@ -15,6 +14,7 @@ import { EconomicAnalysisPanel } from "./EconomicAnalysisPanel";
 import { MarketEvidencePanel } from "./MarketEvidencePanel";
 import { CandidateComparisonPanel } from "./CandidateComparisonPanel";
 import { CalibrationPanel } from "./CalibrationPanel";
+import { AgentStatusRail } from "./AgentStatusRail";
 
 interface WorkspaceLayoutProps {
   intake: AnalysisIntake;
@@ -81,6 +81,8 @@ export function WorkspaceLayout({
         </div>
       </div>
 
+      <AgentStatusRail agentLogs={agentLogs} isComplete={status === "complete"} />
+
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Spatial (5 cols) */}
@@ -108,24 +110,25 @@ export function WorkspaceLayout({
           </button>
         </div>
 
-        {/* Middle Pane: Terminals (4 cols) */}
-        <div className="w-4/12 border-r border-zinc-800 flex flex-col">
-          <TerminalGrid
-            agentLogs={agentLogs}
-            verdict={report?.summary.verdict}
-            isComplete={status === "complete"}
-          />
+        {/* Middle Pane: Supporting Analysis */}
+        <div className="w-3/12 border-r border-zinc-800 overflow-y-auto">
+          {report ? (
+            <>
+              <MarketEvidencePanel benchmarks={report.marketBenchmarks} />
+              <CandidateComparisonPanel candidates={report.candidateComparisons} />
+              <CalibrationPanel businessType={intake.businessType} report={report} />
+            </>
+          ) : (
+            <PendingPanel message={error ? `ERROR: ${error}` : "AWAITING MARKET EVIDENCE..."} />
+          )}
         </div>
 
-        {/* Right Pane: Decision Panel (3 cols) */}
-        <div className="w-3/12 flex flex-col overflow-y-auto">
+        {/* Right Pane: Core Decision Stack */}
+        <div className="w-4/12 flex flex-col overflow-y-auto">
           {report ? (
             <>
               <ScoreBreakdownPanel summary={report.summary} />
               <EconomicAnalysisPanel analysis={report.economicAnalysis} />
-              <MarketEvidencePanel benchmarks={report.marketBenchmarks} />
-              <CandidateComparisonPanel candidates={report.candidateComparisons} />
-              <CalibrationPanel businessType={intake.businessType} report={report} />
               <WhatIfPanel
                 result={whatIf.result}
                 paybackMonths={whatIf.paybackMonths}
@@ -137,9 +140,9 @@ export function WorkspaceLayout({
               />
             </>
           ) : (
-            <div className="p-4 font-mono text-xs text-zinc-500">
-              [{error ? `ERROR: ${error}` : "AWAITING FINANCIAL REPORT..."}]
-            </div>
+            <PendingPanel
+              message={error ? `ERROR: ${error}` : "AWAITING DECISION OUTPUT..."}
+            />
           )}
         </div>
       </div>
@@ -161,4 +164,8 @@ export function WorkspaceLayout({
       </div>
     </div>
   );
+}
+
+function PendingPanel({ message }: { message: string }) {
+  return <div className="p-4 font-mono text-xs text-zinc-500">[{message}]</div>;
 }
