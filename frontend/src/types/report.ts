@@ -9,6 +9,42 @@ export interface Summary {
   scoreBreakdown?: ScoreBreakdown | null;
 }
 
+export interface MonthlyCashFlow {
+  month: number;
+  grossRevenue: number;
+  grossProfit: number;
+  baseRent: number;
+  turnoverRent: number;
+  occupancyCost: number;
+  operatingCost: number;
+  initialOutflow: number;
+  depositRecovery: number;
+  reinstatementCost: number;
+  netCashFlow: number;
+  discountedCashFlow: number;
+}
+
+export interface ScenarioResult {
+  key: string;
+  revenueMultiplier: number;
+  costMultiplier: number;
+  npv: number;
+  irrAnnual?: number | null;
+  discountedPaybackMonths?: number | null;
+  totalNetCashFlow: number;
+}
+
+export interface EconomicAnalysis {
+  cashFlows: MonthlyCashFlow[];
+  npv: number;
+  irrAnnual?: number | null;
+  discountedPaybackMonths?: number | null;
+  breakEvenRevenue: number;
+  breakEvenDailyCustomers: number;
+  discountRateAnnual: number;
+  scenarios: Record<string, ScenarioResult>;
+}
+
 export interface ScoreEvidence {
   label: string;
   value: string;
@@ -69,6 +105,7 @@ export interface LeaseLensReport {
   summary: Summary;
   spatialBlueprint: SpatialBlueprint;
   financialModel: FinancialModel;
+  economicAnalysis: EconomicAnalysis;
   mapData: MapData;
   recommendedLocations: CandidateLocation[];
 }

@@ -38,6 +38,11 @@ export class AnalysisService {
     appendOptionalNumber(formData, "insurance_monthly", intake.insuranceMonthly);
     appendOptionalNumber(formData, "license_fees", intake.licenseFees);
     appendOptionalNumber(formData, "reinstatement_cost", intake.reinstatementCost);
+    appendOptionalNumber(formData, "annual_rent_escalation", intake.annualRentEscalation);
+    appendOptionalNumber(formData, "annual_revenue_growth", intake.annualRevenueGrowth);
+    appendOptionalNumber(formData, "turnover_rent_rate", intake.turnoverRentRate);
+    appendOptionalNumber(formData, "opening_ramp_months", intake.openingRampMonths);
+    appendOptionalNumber(formData, "discount_rate_annual", intake.discountRateAnnual);
     appendOptionalNumber(
       formData,
       "expected_daily_customers",

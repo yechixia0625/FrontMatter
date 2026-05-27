@@ -31,6 +31,11 @@ export interface AnalysisIntake {
   insuranceMonthly?: number;
   licenseFees?: number;
   reinstatementCost?: number;
+  annualRentEscalation?: number;
+  annualRevenueGrowth?: number;
+  turnoverRentRate?: number;
+  openingRampMonths?: number;
+  discountRateAnnual?: number;
   expectedDailyCustomers?: number;
   averageSpend?: number;
   grossMargin?: number;

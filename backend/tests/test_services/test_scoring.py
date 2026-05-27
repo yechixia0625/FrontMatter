@@ -84,7 +84,7 @@ def test_full_cooking_without_exhaust_and_grease_trap_is_critical():
 
     breakdown = summary["scoreBreakdown"]
     critical_flags = [flag for flag in breakdown["riskFlags"] if flag["severity"] == "critical"]
-    assert summary["verdict"] == "HIGH RISK - VERIFY BEFORE SIGNING"
+    assert summary["verdict"] == "VERIFY CRITICAL CONDITIONS BEFORE PROCEEDING"
     assert any(flag["blocking"] for flag in critical_flags)
     assert any("exhaust" in flag["message"].lower() for flag in critical_flags)
     assert any("grease" in flag["message"].lower() for flag in critical_flags)
@@ -223,3 +223,30 @@ def test_fallback_financial_estimates_lower_confidence():
         "fallback benchmarks" in flag["message"]
         for flag in summary["scoreBreakdown"]["riskFlags"]
     )
+
+
+def test_strong_score_with_fragile_downside_requires_stress_review():
+    summary = enrich_summary(
+        make_intake(
+            expected_rent=1000,
+            expected_daily_customers=300,
+            average_spend=40,
+            gross_margin=0.8,
+            fitout_budget=0,
+            staffing_monthly=0,
+            utilities_monthly_estimate=0,
+            electrical_readiness="yes",
+            has_water_supply="yes",
+            has_floor_trap="yes",
+            has_grease_trap="yes",
+            has_exhaust="yes",
+            wastewater_readiness="yes",
+            approved_use_status="confirmed",
+        ),
+        base_financial_model(),
+        available_map_data(),
+        {"score": 70},
+        economics={"scenarios": {"severe_downside": {"npv": -1}}},
+    )
+
+    assert summary["verdict"] == "REQUIRES CONDITIONS AND STRESS REVIEW"

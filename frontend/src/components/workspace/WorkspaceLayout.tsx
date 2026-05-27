@@ -11,6 +11,7 @@ import { useWhatIf } from "@/hooks/useWhatIf";
 import type { AnalysisIntake } from "@/services/intakeTransfer";
 import type { AgentLogEvent } from "@/types/streaming";
 import { ScoreBreakdownPanel } from "./ScoreBreakdownPanel";
+import { EconomicAnalysisPanel } from "./EconomicAnalysisPanel";
 
 interface WorkspaceLayoutProps {
   intake: AnalysisIntake;
@@ -118,6 +119,7 @@ export function WorkspaceLayout({
           {report ? (
             <>
               <ScoreBreakdownPanel summary={report.summary} />
+              <EconomicAnalysisPanel analysis={report.economicAnalysis} />
               <WhatIfPanel
                 result={whatIf.result}
                 paybackMonths={whatIf.paybackMonths}

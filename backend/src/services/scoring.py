@@ -1,6 +1,8 @@
 from typing import Any
 
+from src.models.schemas.economics import LeaseEconomicsInput
 from src.models.schemas.intake import SpaceIntakeRequest
+from src.services.economics import project_lease_economics
 
 FNB_TERMS = ("cafe", "coffee", "bakery", "restaurant", "bar", "food", "bistro")
 
@@ -101,9 +103,12 @@ def enrich_summary(
     financial_model: dict[str, Any],
     map_data: dict[str, Any],
     _llm_summary: dict[str, Any],
+    economics: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a traceable score from structured inputs and verified map availability."""
     metrics = _financial_metrics(intake, financial_model)
+    if economics is None:
+        economics = build_economic_analysis(intake, financial_model)
     flags: list[dict[str, Any]] = []
     if financial_model.get("estimateStatus") == "fallback":
         _add_flag(
@@ -132,9 +137,12 @@ def enrich_summary(
     llm_score = 0
     total_score = fixed_score
     blocking = any(flag["blocking"] for flag in flags if flag["severity"] == "critical")
+    severe_downside_npv = (
+        economics.get("scenarios", {}).get("severe_downside", {}).get("npv", float("-inf"))
+    )
     return {
         "score": total_score,
-        "verdict": _verdict(total_score, blocking),
+        "verdict": _verdict(total_score, blocking, severe_downside_npv),
         "paybackMonths": metrics["paybackMonths"],
         "scoreBreakdown": {
             "fixedScore": fixed_score,
@@ -147,6 +155,37 @@ def enrich_summary(
             "riskFlags": flags,
         },
     }
+
+
+def build_economic_analysis(
+    intake: SpaceIntakeRequest, financial_model: dict[str, Any]
+) -> dict[str, Any]:
+    """Project deterministic lease cash flows from normalized screening inputs."""
+    _financial_metrics(intake, financial_model)
+    analysis = project_lease_economics(
+        LeaseEconomicsInput(
+            leaseTermMonths=intake.lease_term_months or 36,
+            baseRent=financial_model["baseRent"],
+            serviceChargeMonthly=intake.service_charge_monthly,
+            otherOccupancyCostsMonthly=intake.other_monthly_costs,
+            fixedOperatingCostsMonthly=financial_model["fixedCostNonRent"],
+            initialInvestment=financial_model["initialDecorationCost"] + intake.license_fees,
+            depositAmount=financial_model["baseRent"] * intake.deposit_months,
+            reinstatementCost=intake.reinstatement_cost,
+            dailyPayingCustomers=(
+                financial_model["expectedTraffic"] * financial_model["conversionRate"]
+            ),
+            averageSpend=financial_model["averageSpend"],
+            grossMargin=financial_model["grossMargin"],
+            rentFreeMonths=intake.rent_free_months,
+            annualRentEscalation=intake.annual_rent_escalation,
+            annualRevenueGrowth=intake.annual_revenue_growth,
+            turnoverRentRate=intake.turnover_rent_rate,
+            openingRampMonths=intake.opening_ramp_months,
+            discountRateAnnual=intake.discount_rate_annual,
+        )
+    )
+    return analysis.model_dump()
 
 
 def recommend_locations(
@@ -674,14 +713,14 @@ def _confidence(map_data: dict[str, Any], flags: list[dict[str, Any]]) -> str:
     return "HIGH"
 
 
-def _verdict(score: int, blocking: bool = False) -> str:
+def _verdict(score: int, blocking: bool = False, severe_downside_npv: float = float("-inf")) -> str:
     if blocking:
-        return "HIGH RISK - VERIFY BEFORE SIGNING"
-    if score >= 80:
-        return "APPROVED"
+        return "VERIFY CRITICAL CONDITIONS BEFORE PROCEEDING"
+    if score >= 80 and severe_downside_npv >= 0:
+        return "PROCEED TO DUE DILIGENCE"
     if score >= 60:
-        return "APPROVED WITH CONDITIONS"
-    return "REJECTED"
+        return "REQUIRES CONDITIONS AND STRESS REVIEW"
+    return "ECONOMICALLY WEAK UNDER STATED ASSUMPTIONS"
 
 
 def _add_flag(

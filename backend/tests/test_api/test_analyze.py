@@ -173,6 +173,11 @@ async def test_analyze_space_parses_v2_lease_and_building_fields(client):
             "insurance_monthly": "250",
             "license_fees": "900",
             "reinstatement_cost": "15000",
+            "annual_rent_escalation": "0.04",
+            "annual_revenue_growth": "0.03",
+            "turnover_rent_rate": "0.02",
+            "opening_ramp_months": "4",
+            "discount_rate_annual": "0.09",
             "expected_daily_customers": "140",
             "average_spend": "18",
             "gross_margin": "0.68",
@@ -199,6 +204,11 @@ async def test_analyze_space_parses_v2_lease_and_building_fields(client):
     assert intake.approved_use_status == "needs_change_of_use"
     assert intake.expected_daily_customers == 140
     assert intake.frontage_width_m == 6
+    assert intake.annual_rent_escalation == 0.04
+    assert intake.annual_revenue_growth == 0.03
+    assert intake.turnover_rent_rate == 0.02
+    assert intake.opening_ramp_months == 4
+    assert intake.discount_rate_annual == 0.09
 
 
 @pytest.mark.asyncio

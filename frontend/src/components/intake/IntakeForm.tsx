@@ -39,6 +39,11 @@ export interface IntakeFormValues {
   insuranceMonthly: string;
   licenseFees: string;
   reinstatementCost: string;
+  annualRentEscalation: string;
+  annualRevenueGrowth: string;
+  turnoverRentRate: string;
+  openingRampMonths: string;
+  discountRateAnnual: string;
   expectedDailyCustomers: string;
   averageSpend: string;
   grossMargin: string;
@@ -80,6 +85,11 @@ export const DEFAULT_INTAKE_FORM_VALUES: IntakeFormValues = {
   insuranceMonthly: "",
   licenseFees: "",
   reinstatementCost: "",
+  annualRentEscalation: "0",
+  annualRevenueGrowth: "0",
+  turnoverRentRate: "0",
+  openingRampMonths: "3",
+  discountRateAnnual: "0.08",
   expectedDailyCustomers: "",
   averageSpend: "",
   grossMargin: "",
@@ -306,6 +316,41 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
               onChange={(value) => onChange("reinstatementCost", value)}
             />
             <NumberField
+              label="Rent Escalation / Yr"
+              placeholder="0.03"
+              value={values.annualRentEscalation}
+              step="0.01"
+              onChange={(value) => onChange("annualRentEscalation", value)}
+            />
+            <NumberField
+              label="Revenue Growth / Yr"
+              placeholder="0.02"
+              value={values.annualRevenueGrowth}
+              min="-1"
+              step="0.01"
+              onChange={(value) => onChange("annualRevenueGrowth", value)}
+            />
+            <NumberField
+              label="Turnover Rent Rate"
+              placeholder="0.02"
+              value={values.turnoverRentRate}
+              step="0.01"
+              onChange={(value) => onChange("turnoverRentRate", value)}
+            />
+            <NumberField
+              label="Opening Ramp Months"
+              placeholder="3"
+              value={values.openingRampMonths}
+              onChange={(value) => onChange("openingRampMonths", value)}
+            />
+            <NumberField
+              label="Discount Rate / Yr"
+              placeholder="0.08"
+              value={values.discountRateAnnual}
+              step="0.01"
+              onChange={(value) => onChange("discountRateAnnual", value)}
+            />
+            <NumberField
               label="Daily Customers"
               placeholder="140"
               value={values.expectedDailyCustomers}
@@ -415,14 +460,15 @@ function TextField({ label, value, placeholder, onChange }: TextFieldProps) {
 
 interface NumberFieldProps extends TextFieldProps {
   step?: string;
+  min?: string;
 }
 
-function NumberField({ label, value, placeholder, step, onChange }: NumberFieldProps) {
+function NumberField({ label, value, placeholder, step, min = "0", onChange }: NumberFieldProps) {
   return (
     <FieldShell label={label}>
       <input
         type="number"
-        min="0"
+        min={min}
         step={step}
         placeholder={placeholder}
         value={value}

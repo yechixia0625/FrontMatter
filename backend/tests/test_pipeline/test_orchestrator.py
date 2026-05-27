@@ -101,7 +101,7 @@ async def test_report_is_last_raw_sse_data_frame(fake_intake):
     payloads = [json.loads(chunk.split("data: ", 1)[1]) for chunk in chunks]
 
     assert chunks[-1].startswith("data: ")
-    assert payloads[-1]["summary"]["verdict"] == "APPROVED"
+    assert payloads[-1]["summary"]["verdict"] == "PROCEED TO DUE DILIGENCE"
     assert "event" not in payloads[-1]
     assert payloads[-1]["mapData"]["competitors"][0]["name"] == "Verified Cafe"
     assert all(payload["event"] == "agent_log" for payload in payloads[:-1])
@@ -139,6 +139,11 @@ async def test_report_includes_fixed_llm_score_breakdown_and_recommendations(fak
     assert payload["summary"]["score"] == breakdown["totalScore"]
     assert sum(component["maxScore"] for component in breakdown["components"]) == 60
     assert payload["recommendedLocations"] == []
+    assert payload["economicAnalysis"]["npv"] > 0
+    assert (
+        payload["economicAnalysis"]["scenarios"]["severe_downside"]["npv"]
+        < payload["economicAnalysis"]["scenarios"]["baseline"]["npv"]
+    )
 
 
 @pytest.mark.asyncio
