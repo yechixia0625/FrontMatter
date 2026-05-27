@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from src.models.schemas.benchmark import MarketBenchmarkBundle
 from src.models.schemas.economics import LeaseEconomicsResult
 from src.models.schemas.financial import FinancialModel
 from src.models.schemas.map import MapData
@@ -15,5 +16,6 @@ class LeaseLensReport(BaseModel):
     spatialBlueprint: SpatialBlueprint
     financialModel: FinancialModel
     economicAnalysis: LeaseEconomicsResult
+    marketBenchmarks: MarketBenchmarkBundle
     mapData: MapData
     recommendedLocations: list[CandidateLocation] = Field(default_factory=list)

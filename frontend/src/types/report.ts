@@ -45,6 +45,38 @@ export interface EconomicAnalysis {
   scenarios: Record<string, ScenarioResult>;
 }
 
+export interface BenchmarkSource {
+  id: string;
+  publisher: string;
+  title: string;
+  url: string;
+  licence: string;
+  accessedDate: string;
+  dataUpdatedDate?: string | null;
+}
+
+export interface BenchmarkObservation {
+  key: string;
+  label: string;
+  value?: number | null;
+  unit: string;
+  period?: string | null;
+  geography: string;
+  status: "observed" | "reference_only" | "unavailable";
+  sourceId: string;
+  usedInCashFlow: boolean;
+  note?: string | null;
+}
+
+export interface MarketBenchmarkBundle {
+  status: "context_available" | "unavailable";
+  retrievalMode: "snapshot" | "live";
+  snapshotVersion: string;
+  sources: BenchmarkSource[];
+  observations: BenchmarkObservation[];
+  note: string;
+}
+
 export interface ScoreEvidence {
   label: string;
   value: string;
@@ -106,6 +138,7 @@ export interface LeaseLensReport {
   spatialBlueprint: SpatialBlueprint;
   financialModel: FinancialModel;
   economicAnalysis: EconomicAnalysis;
+  marketBenchmarks: MarketBenchmarkBundle;
   mapData: MapData;
   recommendedLocations: CandidateLocation[];
 }

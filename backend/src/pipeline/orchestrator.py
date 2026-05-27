@@ -7,6 +7,7 @@ from src.models.schemas.intake import SpaceIntakeRequest
 from src.models.schemas.report import LeaseLensReport
 from src.models.schemas.streaming import AgentLogEvent, ErrorEvent
 from src.pipeline.stream import SSEStreamManager
+from src.services.benchmarks import BenchmarkService
 from src.services.geo import GeoService
 from src.services.llm import LLMService
 from src.services.scoring import build_economic_analysis, enrich_summary, recommend_locations
@@ -21,6 +22,7 @@ class AnalysisOrchestrator:
     def __init__(self, llm_service: LLMService, geo_service: GeoService):
         self._llm = llm_service
         self._agents = get_all_agents(geo_service)
+        self._benchmarks = BenchmarkService()
 
     async def run(self, intake: SpaceIntakeRequest) -> AsyncGenerator[str, None]:
         """
@@ -139,6 +141,7 @@ class AnalysisOrchestrator:
             }
 
         merged["economicAnalysis"] = build_economic_analysis(intake, merged["financialModel"])
+        merged["marketBenchmarks"] = self._benchmarks.market_context(intake).model_dump()
         merged["summary"] = enrich_summary(
             intake,
             merged["financialModel"],

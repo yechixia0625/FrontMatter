@@ -12,6 +12,7 @@ import type { AnalysisIntake } from "@/services/intakeTransfer";
 import type { AgentLogEvent } from "@/types/streaming";
 import { ScoreBreakdownPanel } from "./ScoreBreakdownPanel";
 import { EconomicAnalysisPanel } from "./EconomicAnalysisPanel";
+import { MarketEvidencePanel } from "./MarketEvidencePanel";
 
 interface WorkspaceLayoutProps {
   intake: AnalysisIntake;
@@ -120,6 +121,7 @@ export function WorkspaceLayout({
             <>
               <ScoreBreakdownPanel summary={report.summary} />
               <EconomicAnalysisPanel analysis={report.economicAnalysis} />
+              <MarketEvidencePanel benchmarks={report.marketBenchmarks} />
               <WhatIfPanel
                 result={whatIf.result}
                 paybackMonths={whatIf.paybackMonths}

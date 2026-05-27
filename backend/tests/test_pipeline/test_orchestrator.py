@@ -144,6 +144,8 @@ async def test_report_includes_fixed_llm_score_breakdown_and_recommendations(fak
         payload["economicAnalysis"]["scenarios"]["severe_downside"]["npv"]
         < payload["economicAnalysis"]["scenarios"]["baseline"]["npv"]
     )
+    assert payload["marketBenchmarks"]["retrievalMode"] == "snapshot"
+    assert payload["marketBenchmarks"]["observations"][0]["usedInCashFlow"] is False
 
 
 @pytest.mark.asyncio
