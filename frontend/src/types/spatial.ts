@@ -12,7 +12,7 @@ export interface HeatZone {
   y: number;
   radius: number;
   intensity: number; // 0.0 - 1.0
-  type: "high_profit" | "dead_zone" | "neutral";
+  type: "high_visibility" | "operational_friction" | "neutral";
 }
 
 export interface SpatialBlueprint {

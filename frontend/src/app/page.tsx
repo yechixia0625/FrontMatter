@@ -4,22 +4,31 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginPanel } from "@/components/auth/LoginPanel";
 import { DropZone } from "@/components/intake/DropZone";
-import { IntakeForm } from "@/components/intake/IntakeForm";
+import {
+  DEFAULT_INTAKE_FORM_VALUES,
+  IntakeForm,
+  type IntakeFormValues,
+} from "@/components/intake/IntakeForm";
 import { AnalyzeButton } from "@/components/intake/AnalyzeButton";
 import { LocationSelector } from "@/components/intake/LocationSelector";
+import {
+  CandidateSitesSelector,
+  type CandidateDraft,
+} from "@/components/intake/CandidateSitesSelector";
 import { AuthService } from "@/services/authService";
 import { storePendingAnalysis } from "@/services/intakeTransfer";
-import type { SiteLocation } from "@/services/intakeTransfer";
+import type { AnalysisIntake, SiteLocation } from "@/services/intakeTransfer";
 
 export default function IntakePage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [businessType, setBusinessType] = useState("");
-  const [expectedRent, setExpectedRent] = useState("");
-  const [squareMeters, setSquareMeters] = useState("");
+  const [formValues, setFormValues] = useState<IntakeFormValues>(
+    DEFAULT_INTAKE_FORM_VALUES
+  );
   const [location, setLocation] = useState<SiteLocation | null>(null);
+  const [candidateSites, setCandidateSites] = useState<CandidateDraft[]>([]);
 
   const supportedFile =
     file !== null &&
@@ -27,9 +36,12 @@ export default function IntakePage() {
     file.size <= 10 * 1024 * 1024;
   const canAnalyze =
     supportedFile &&
-    businessType.trim() !== "" &&
-    Number(expectedRent) > 0 &&
-    Number(squareMeters) > 0 &&
+    formValues.businessType.trim() !== "" &&
+    Number(formValues.expectedRent) > 0 &&
+    Number(formValues.squareMeters) > 0 &&
+    Number(formValues.leaseTermMonths) > 0 &&
+    Number(formValues.serviceChargeMonthly) >= 0 &&
+    Number(formValues.fitoutBudget) >= 0 &&
     location !== null;
 
   useEffect(() => {
@@ -52,17 +64,13 @@ export default function IntakePage() {
     };
   }, []);
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!canAnalyze) return;
+    const intake = buildAnalysisIntake(formValues, location!, candidateSites);
 
-    storePendingAnalysis({
+    await storePendingAnalysis({
       file: file!,
-      intake: {
-        businessType,
-        expectedRent: parseFloat(expectedRent),
-        squareMeters: parseFloat(squareMeters),
-        location: location!,
-      },
+      intake,
     });
 
     router.push("/workspace");
@@ -93,7 +101,7 @@ export default function IntakePage() {
             Lease<span className="text-zinc-500">Lens</span>
           </h1>
           <p className="text-zinc-500 font-mono text-sm">
-            Commercial Spatial Intelligence Platform
+            Singapore shop-location intelligence for small businesses
           </p>
         </div>
 
@@ -107,19 +115,95 @@ export default function IntakePage() {
 
         {/* Form */}
         <IntakeForm
-          businessType={businessType}
-          expectedRent={expectedRent}
-          squareMeters={squareMeters}
-          onBusinessTypeChange={setBusinessType}
-          onExpectedRentChange={setExpectedRent}
-          onSquareMetersChange={setSquareMeters}
+          values={formValues}
+          onChange={(key, value) =>
+            setFormValues((current) => ({ ...current, [key]: value }))
+          }
         />
 
         <LocationSelector value={location} onChange={setLocation} />
+        <CandidateSitesSelector candidates={candidateSites} onChange={setCandidateSites} />
 
         {/* Analyze Button */}
-        <AnalyzeButton disabled={!canAnalyze} onClick={handleAnalyze} />
+        <AnalyzeButton disabled={!canAnalyze} onClick={() => void handleAnalyze()} />
       </div>
     </main>
   );
+}
+
+function buildAnalysisIntake(
+  values: IntakeFormValues,
+  location: SiteLocation,
+  candidateDrafts: CandidateDraft[]
+): AnalysisIntake {
+  return {
+    businessType: values.businessType,
+    expectedRent: toRequiredNumber(values.expectedRent),
+    squareMeters: toRequiredNumber(values.squareMeters),
+    leaseTermMonths: toRequiredNumber(values.leaseTermMonths),
+    serviceChargeMonthly: toRequiredNumber(values.serviceChargeMonthly),
+    fitoutBudget: toRequiredNumber(values.fitoutBudget),
+    cookingIntensity: values.cookingIntensity,
+    floorPosition: values.floorPosition,
+    layoutShape: values.layoutShape,
+    hasWaterSupply: values.hasWaterSupply,
+    hasFloorTrap: values.hasFloorTrap,
+    hasGreaseTrap: values.hasGreaseTrap,
+    electricalReadiness: values.electricalReadiness,
+    hasGas: values.hasGas,
+    hasExhaust: values.hasExhaust,
+    wastewaterReadiness: values.wastewaterReadiness,
+    approvedUseStatus: values.approvedUseStatus,
+    rentFreeMonths: toOptionalNumber(values.rentFreeMonths),
+    depositMonths: toOptionalNumber(values.depositMonths),
+    otherMonthlyCosts: toOptionalNumber(values.otherMonthlyCosts),
+    utilitiesMonthlyEstimate: toOptionalNumber(values.utilitiesMonthlyEstimate),
+    staffingMonthly: toOptionalNumber(values.staffingMonthly),
+    marketingMonthly: toOptionalNumber(values.marketingMonthly),
+    insuranceMonthly: toOptionalNumber(values.insuranceMonthly),
+    licenseFees: toOptionalNumber(values.licenseFees),
+    reinstatementCost: toOptionalNumber(values.reinstatementCost),
+    annualRentEscalation: toOptionalNumber(values.annualRentEscalation),
+    annualRevenueGrowth: toOptionalNumber(values.annualRevenueGrowth),
+    turnoverRentRate: toOptionalNumber(values.turnoverRentRate),
+    openingRampMonths: toOptionalNumber(values.openingRampMonths),
+    discountRateAnnual: toOptionalNumber(values.discountRateAnnual),
+    expectedDailyCustomers: toOptionalNumber(values.expectedDailyCustomers),
+    averageSpend: toOptionalNumber(values.averageSpend),
+    grossMargin: toOptionalNumber(values.grossMargin),
+    frontageWidthM: toOptionalNumber(values.frontageWidthM),
+    ceilingHeightM: toOptionalNumber(values.ceilingHeightM),
+    usableAreaRatio: toOptionalNumber(values.usableAreaRatio),
+    storageAreaSqm: toOptionalNumber(values.storageAreaSqm),
+    seatingCapacity: toOptionalNumber(values.seatingCapacity),
+    loadingAccess: values.loadingAccess,
+    toiletAccess: values.toiletAccess,
+    signageVisibility: values.signageVisibility,
+    exhaustRouteAvailable: values.exhaustRouteAvailable,
+    location,
+    candidateSites: candidateDrafts.flatMap((candidate) => {
+      const monthlyRent = Number(candidate.monthlyRent);
+      if (!candidate.location || !Number.isFinite(monthlyRent) || monthlyRent <= 0) {
+        return [];
+      }
+      return [
+        {
+          label: candidate.location.siteLabel ?? "Current location candidate",
+          monthlyRent,
+          latitude: candidate.location.latitude,
+          longitude: candidate.location.longitude,
+        },
+      ];
+    }),
+  };
+}
+
+function toRequiredNumber(value: string): number {
+  return Number(value);
+}
+
+function toOptionalNumber(value: string): number | undefined {
+  if (value.trim() === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }

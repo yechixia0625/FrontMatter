@@ -32,6 +32,16 @@ Analyze the financial viability of this commercial lease:
 - Business type: {intake.business_type}
 - Monthly rent: {intake.expected_rent}
 - Space size: {intake.square_meters} sqm
+- Lease term: {intake.lease_term_months or "unknown"} months
+- Rent-free period: {intake.rent_free_months} months
+- Service charge: {intake.service_charge_monthly} per month
+- Other monthly costs: {intake.other_monthly_costs}
+- Utilities estimate: {intake.utilities_monthly_estimate or "unknown"}
+- Staffing estimate: {intake.staffing_monthly or "unknown"}
+- Fit-out budget: {intake.fitout_budget or "unknown"}
+- Expected daily customers: {intake.expected_daily_customers or "unknown"}
+- Average spend: {intake.average_spend or "unknown"}
+- Gross margin: {intake.gross_margin or "unknown"}
 
 Generate a financial model. Return ONLY valid JSON matching this structure:
 {{
@@ -47,9 +57,10 @@ Generate a financial model. Return ONLY valid JSON matching this structure:
 }}
 
 Consider industry benchmarks for {intake.business_type} businesses.
+When the user supplied a financial assumption above, preserve it instead of overwriting it.
 Be realistic with traffic and conversion estimates."""
 
-    def parse_response(self, raw_llm_output: str) -> dict:
+    def parse_response(self, raw_llm_output: str, intake: SpaceIntakeRequest) -> dict:
         try:
             match = re.search(r"\{[\s\S]*\}", raw_llm_output)
             if not match:
@@ -58,18 +69,19 @@ Be realistic with traffic and conversion estimates."""
             model = FinancialModel.model_validate(data["financialModel"])
             return {"financialModel": model.model_dump()}
         except (json.JSONDecodeError, KeyError, ValidationError, ValueError):
-            return self._fallback_financial()
+            return self._fallback_financial(intake)
 
-    def _fallback_financial(self) -> dict:
+    def _fallback_financial(self, intake: SpaceIntakeRequest) -> dict:
         return {
             "financialModel": {
-                "baseRent": 5200,
+                "baseRent": intake.expected_rent,
                 "expectedTraffic": 120,
                 "conversionRate": 0.08,
                 "averageSpend": 35,
                 "grossMargin": 0.65,
                 "fixedCostNonRent": 2000,
                 "initialDecorationCost": 45000,
+                "estimateStatus": "fallback",
             }
         }
 
@@ -83,7 +95,7 @@ Be realistic with traffic and conversion estimates."""
         raw = await llm_service.complete(prompt)
 
         yield self._make_log("Computing cost structures...")
-        result = self.parse_response(raw)
+        result = self.parse_response(raw, intake)
 
         yield self._make_log("Financial analysis complete.", status="done")
         yield AgentLogEvent(

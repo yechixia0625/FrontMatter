@@ -44,13 +44,13 @@ We are using a decoupled monorepo architecture.
 
 ### Module 2: Left Pane - Spatial & Map Engine (5 Columns)
 * **SVG Blueprint Renderer:** Instead of heavy 3D, parse the backend's JSON to draw a dynamic 2D SVG blueprint. Use strokes for walls, arcs for doors.
-* **Heatmap Overlay:** Apply absolute positioned `<div>` or `<circle>` elements with CSS `blur-2xl` and opacity over the SVG to represent "High Profit" and "Dead Zones".
+* **Heatmap Overlay:** Apply absolute positioned `<div>` or `<circle>` elements with CSS `blur-2xl` and opacity over the SVG to represent high-visibility opportunities and operational-friction zones.
 * **Map Toggle:** A button to flip the blueprint into a `React Leaflet` map (Dark mode, no labels). Render competitors as simple high-contrast dots.
 
 ### Module 3: Middle Pane - Multi-Agent Terminal (4 Columns)
 * **Concurrent Log Streaming:** Split into 4 terminal boxes: `[Spatial]`, `[Finance]`, `[Competition]`, `[Strategy]`.
 * **Behavior:** Listen to the backend SSE stream. Text must appear line-by-line simultaneously across all 4 boxes, simulating 4 AI brains thinking concurrently.
-* **Verdict Stamp Animation:** Once the stream ends, use Framer Motion to drop a massive text stamp in the center (e.g., `APPROVED WITH CONDITIONS`).
+* **Decision Stamp Animation:** Once the stream ends, use Framer Motion to show a due-diligence outcome (e.g., `REQUIRES CONDITIONS AND STRESS REVIEW`).
 
 ### Module 4: Right & Bottom Pane - What-If Simulator (3 Columns + Bottom Fixed)
 * **Zero-Latency Math Engine:** Use pure React `useMemo`. Formula: `Net Profit = (Traffic * Spend * Conversion) - Rent - Fixed Costs`.
@@ -71,7 +71,7 @@ The Python backend must ultimately generate and stream this exact JSON structure
 {
   "summary": {
     "score": 82,
-    "verdict": "APPROVED WITH CONDITIONS",
+    "verdict": "REQUIRES CONDITIONS AND STRESS REVIEW",
     "paybackMonths": 9.2
   },
   "spatialBlueprint": {
@@ -81,23 +81,54 @@ The Python backend must ultimately generate and stream this exact JSON structure
       { "type": "window", "x": 0, "y": 0, "w": 5, "h": 30, "label": "Street Display" }
     ],
     "heatZones": [
-      { "x": 20, "y": 20, "radius": 15, "intensity": 0.9, "type": "high_profit" },
-      { "x": 80, "y": 80, "radius": 20, "intensity": 0.2, "type": "dead_zone" }
+      { "x": 20, "y": 20, "radius": 15, "intensity": 0.9, "type": "high_visibility" },
+      { "x": 80, "y": 80, "radius": 20, "intensity": 0.2, "type": "operational_friction" }
     ]
   },
   "financialModel": {
     "baseRent": 5200,
     "expectedTraffic": 120,
     "conversionRate": 0.08,
+    "demandBasis": "estimated_foot_traffic",
+    "estimateStatus": "benchmark",
     "averageSpend": 35,
     "grossMargin": 0.65,
     "fixedCostNonRent": 2000,
     "initialDecorationCost": 45000
   },
+  "economicAnalysis": {
+    "cashFlows": [],
+    "npv": 12000,
+    "irrAnnual": 0.12,
+    "discountedPaybackMonths": 18.4,
+    "breakEvenRevenue": 24000,
+    "breakEvenDailyCustomers": 45.7,
+    "discountRateAnnual": 0.08,
+    "scenarios": {
+      "baseline": { "key": "baseline", "revenueMultiplier": 1, "costMultiplier": 1, "npv": 12000, "irrAnnual": 0.12, "discountedPaybackMonths": 18.4, "totalNetCashFlow": 16000 },
+      "downside": { "key": "downside", "revenueMultiplier": 0.9, "costMultiplier": 1.05, "npv": 4000, "irrAnnual": 0.09, "discountedPaybackMonths": 27, "totalNetCashFlow": 7000 },
+      "severe_downside": { "key": "severe_downside", "revenueMultiplier": 0.75, "costMultiplier": 1.1, "npv": -9000, "irrAnnual": null, "discountedPaybackMonths": null, "totalNetCashFlow": -6000 }
+    }
+  },
+  "marketBenchmarks": {
+    "status": "context_available",
+    "retrievalMode": "snapshot",
+    "snapshotVersion": "2026-05-27.sg-public-v1",
+    "sources": [],
+    "observations": [],
+    "note": "Public market context only; site-specific rent is not inferred."
+  },
   "mapData": {
     "center": [31.2304, 121.4737],
+    "locationMode": "address",
+    "siteLabel": "Selected Site",
+    "dataSource": "google_places",
+    "status": "available",
+    "searchRadiusMeters": 500,
     "competitors": [
-      { "name": "Starbucks", "lat": 31.2310, "lng": 121.4740, "type": "coffee", "threatLevel": "HIGH" }
+      { "name": "Starbucks", "lat": 31.2310, "lng": 121.4740, "type": "coffee", "distanceMeters": 100, "proximityLevel": "HIGH" }
     ]
-  }
+  },
+  "candidateComparisons": [],
+  "recommendedLocations": []
 }

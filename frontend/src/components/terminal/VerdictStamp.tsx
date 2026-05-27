@@ -8,8 +8,9 @@ interface VerdictStampProps {
 }
 
 export function VerdictStamp({ verdict }: VerdictStampProps) {
-  const isApproved = verdict.includes("APPROVED");
-  const isRejected = verdict.includes("REJECTED");
+  const isProceed = verdict.includes("PROCEED TO DUE DILIGENCE");
+  const isCritical =
+    verdict.includes("VERIFY CRITICAL") || verdict.includes("ECONOMICALLY WEAK");
 
   return (
     <div className="flex items-center justify-center py-2">
@@ -24,9 +25,9 @@ export function VerdictStamp({ verdict }: VerdictStampProps) {
         }}
         className={cn(
           "px-6 py-2 border-2 rounded font-mono text-sm font-bold uppercase tracking-widest",
-          isApproved && "border-green-500 text-green-500",
-          isRejected && "border-red-500 text-red-500",
-          !isApproved && !isRejected && "border-yellow-500 text-yellow-500"
+          isProceed && "border-green-500 text-green-500",
+          isCritical && "border-red-500 text-red-500",
+          !isProceed && !isCritical && "border-yellow-500 text-yellow-500"
         )}
       >
         {verdict}

@@ -1,15 +1,16 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from alembic import context
 from src.config.settings import get_settings
-from src.models.orm.base import Base
 
 # Import all models so they register with Base.metadata
 from src.models.orm.analysis import AnalysisRecord  # noqa: F401
+from src.models.orm.base import Base
+from src.models.orm.outcome import OutcomeRecord  # noqa: F401
 from src.models.orm.report import ReportSnapshot  # noqa: F401
 
 config = context.config

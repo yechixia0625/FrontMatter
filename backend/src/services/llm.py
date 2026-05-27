@@ -9,9 +9,10 @@ class LLMService:
     """Async LLM client wrapping an OpenAI-compatible API."""
 
     def __init__(self, settings: Settings):
+        self._api_key = settings.llm_api_key.strip()
         self._client = httpx.AsyncClient(
             base_url=settings.llm_base_url,
-            headers={"Authorization": f"Bearer {settings.llm_api_key}"},
+            headers={"Authorization": f"Bearer {self._api_key}"},
             timeout=settings.llm_timeout_seconds,
         )
         self._model = settings.llm_model
@@ -24,6 +25,9 @@ class LLMService:
         image_content_type: str | None = None,
     ) -> str:
         """Send a chat completion request and return the response text."""
+        if self._uses_placeholder_key():
+            return self._demo_completion(prompt)
+
         messages: list[dict] = []
         if system:
             messages.append({"role": "system", "content": system})
@@ -54,3 +58,36 @@ class LLMService:
 
     async def close(self) -> None:
         await self._client.aclose()
+
+    def _uses_placeholder_key(self) -> bool:
+        normalized = self._api_key.strip().lower()
+        return (
+            not normalized
+            or normalized.startswith(("replace-with", "your-"))
+            or normalized in {
+                "changeme",
+                "placeholder",
+            }
+        )
+
+    @staticmethod
+    def _demo_completion(prompt: str) -> str:
+        normalized = prompt.lower()
+        if "spatial blueprint" in normalized:
+            return """{"spatialBlueprint":{"aspectRatio":1.45,"elements":[
+            {"type":"door","x":0,"y":42,"w":5,"h":18,"label":"Main Entrance"},
+            {"type":"window","x":0,"y":8,"w":5,"h":28,"label":"Street Display"}],
+            "heatZones":[{"x":22,"y":28,"radius":16,"intensity":0.82,
+            "type":"high_visibility"},{"x":78,"y":78,"radius":18,"intensity":0.24,
+            "type":"operational_friction"}],"flowPath":[{"x":5,"y":51},{"x":34,"y":48},
+            {"x":62,"y":32}],"zoneInsights":[{"x":22,"y":44,
+            "type":"opportunity","title":"ENTRY CONVERSION",
+            "reason":"Use first sightline for fast-moving, high-margin items."},
+            {"x":78,"y":78,"type":"friction","title":"LOW EXPOSURE",
+            "reason":"Reserve back area for prep, storage, or appointment-led service."}]}}"""
+        if "financial model" in normalized:
+            return """{"financialModel":{"baseRent":5200,"expectedTraffic":135,
+            "conversionRate":0.09,"averageSpend":32,"grossMargin":0.64,
+            "fixedCostNonRent":2400,"initialDecorationCost":48000}}"""
+        return """{"summary":{"score":0,"verdict":"ADVISORY ONLY - DCF CONTROLS DECISION",
+        "paybackMonths":0}}"""

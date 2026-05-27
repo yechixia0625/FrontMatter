@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   calculateProfit,
   calculatePaybackMonths,
@@ -29,34 +29,42 @@ export function useWhatIf(
   baseInput: ProfitInput & { initialDecorationCost?: number },
   initialOverrides?: Partial<WhatIfState>
 ): UseWhatIfReturn {
-  const [sliders, setSliders] = useState<WhatIfState>({
-    expectedTraffic:
-      initialOverrides?.expectedTraffic ?? baseInput.expectedTraffic,
-    averageSpend: initialOverrides?.averageSpend ?? baseInput.averageSpend,
-    baseRent: initialOverrides?.baseRent ?? baseInput.baseRent,
-  });
-
-  useEffect(() => {
-    setSliders({
+  const baseline = useMemo<WhatIfState>(
+    () => ({
       expectedTraffic:
         initialOverrides?.expectedTraffic ?? baseInput.expectedTraffic,
       averageSpend: initialOverrides?.averageSpend ?? baseInput.averageSpend,
       baseRent: initialOverrides?.baseRent ?? baseInput.baseRent,
-    });
-  }, [
-    baseInput.averageSpend,
-    baseInput.baseRent,
-    baseInput.expectedTraffic,
-    initialOverrides?.averageSpend,
-    initialOverrides?.baseRent,
-    initialOverrides?.expectedTraffic,
-  ]);
+    }),
+    [
+      baseInput.averageSpend,
+      baseInput.baseRent,
+      baseInput.expectedTraffic,
+      initialOverrides?.averageSpend,
+      initialOverrides?.baseRent,
+      initialOverrides?.expectedTraffic,
+    ]
+  );
+  const baselineKey = `${baseline.expectedTraffic}:${baseline.averageSpend}:${baseline.baseRent}`;
+  const [sliderState, setSliderState] = useState<{ key: string; sliders: WhatIfState }>(
+    {
+      key: baselineKey,
+      sliders: baseline,
+    }
+  );
+  const sliders = sliderState.key === baselineKey ? sliderState.sliders : baseline;
 
   const setSlider = useCallback(
     <K extends keyof WhatIfState>(key: K, value: WhatIfState[K]) => {
-      setSliders((prev) => ({ ...prev, [key]: value }));
+      setSliderState((prev) => {
+        const current = prev.key === baselineKey ? prev.sliders : baseline;
+        return {
+          key: baselineKey,
+          sliders: { ...current, [key]: value },
+        };
+      });
     },
-    []
+    [baseline, baselineKey]
   );
 
   const profitInput: ProfitInput = useMemo(
@@ -79,8 +87,8 @@ export function useWhatIf(
   );
 
   const rentPressure = useMemo(
-    () => calculateRentPressure(profitInput.baseRent, result.netRevenue),
-    [profitInput.baseRent, result.netRevenue]
+    () => calculateRentPressure(profitInput.baseRent, result.grossRevenue),
+    [profitInput.baseRent, result.grossRevenue]
   );
 
   return { sliders, setSlider, result, paybackMonths, rentPressure };

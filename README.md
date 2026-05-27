@@ -1,156 +1,320 @@
-# LeaseLensAI
+# LeaseLens AI
 
-LeaseLensAI 是一个面向商业铺位评估的本地部署系统。用户上传铺位照片，输入业态、租金和面积后，系统会结合多智能体分析、经营决策平面图和真实周边地点数据，给出开店可行性判断。
+面向线下商铺租赁尽调的本地部署系统。  
+输入铺位图片、基础租赁参数、地址与经营假设，系统会输出一份可追溯的租赁评估结果，包括空间分析、附近商业观察、现金流测算、风险标记和候选点对比。
 
-## 功能概览
-
-- 上传铺位图片并发起分析
-- 多智能体实时输出分析日志
-- 生成面向经营决策的空间 Blueprint
-- 使用 Google Places 展示真实周边竞争环境
-- 提供本地 What-if 模拟面板，快速调整租金与营收假设
-- 支持 Docker 一键启动
-
-## 技术栈
-
-- Frontend: Next.js
-- Backend: FastAPI
-- Database: PostgreSQL + pgvector
-- Cache: Redis
-- Reverse Proxy: Nginx
-- LLM: 智谱 GLM
-- 地点数据: Google Places API (New)
-
-## 快速开始
-
-### 1. 环境要求
-
-- Docker Desktop 或 Docker Engine
-- Docker Compose
-- 可用的智谱 GLM API Key
-- 可用的 Google Places API (New) Key
-
-### 2. 配置环境变量
-
-先复制一份环境变量模板：
-
-```bash
-cp .env.example .env
-```
-
-至少需要配置以下字段：
-
-- `LEASENS_LLM_API_KEY`
-- `LEASENS_LLM_MODEL`
-- `LEASENS_GOOGLE_PLACES_API_KEY`
-
-如果你准备把系统放到公网测试，建议同时开启演示级登录：
-
-- `LEASENS_DEMO_AUTH_ENABLED=true`
-- `LEASENS_DEMO_AUTH_USERNAME`
-- `LEASENS_DEMO_AUTH_PASSWORD`
-- `LEASENS_DEMO_AUTH_SECRET`
-
-当前项目默认使用智谱 GLM 系列模型，`.env.example` 中默认模型为：
+当前仓库已经按本地 Docker 运行方式整理过，默认访问地址为：
 
 ```text
-glm-4.1v-thinking-flash
+http://127.0.0.1:8080
 ```
 
-### 3. 启动系统
+## 这套系统现在能做什么
 
-对外公开部署、跨平台本地部署，统一使用这份 Compose 配置：
+### 1. 铺位图片分析
+
+- 支持上传 `PNG / JPG / WEBP` 图片。
+- 后端会调用视觉模型生成 `spatialBlueprint`，用于输出：
+  - 平面元素识别
+  - 热区与低效区
+  - 基础动线建议
+  - 空间层面的提示性结论
+
+说明：这里是“空间尽调辅助”，不是 CAD 级别的精准测绘。
+
+### 2. 地址定位与地图观察
+
+- 用户可以选择：
+  - `At site now`：使用当前定位
+  - `Search address`：手动搜索地址
+- 地址搜索与解析走服务端 Google Places。
+- 分析结果支持：
+  - `Decision Plan`：空间蓝图视图
+  - `Live Market`：地图视图
+- 地图会展示：
+  - 当前评估点
+  - 附近已验证商家
+  - 距离推导出的 `proximityLevel`
+
+说明：附近商家是“观察信号”，不是客流证明，也不是自动推荐结论。
+
+### 3. F&B / 零售租赁尽调输入
+
+表单目前支持的不只是基础租金，还包括：
+
+- 基础租赁项：
+  - 月租
+  - 面积
+  - 租期
+  - 服务费
+  - 装修预算
+- F&B readiness：
+  - 烹饪强度
+  - 楼层
+  - 格局
+  - 供水
+  - 电力
+  - 燃气
+  - 地漏
+  - 隔油池
+  - 排烟
+  - 污水
+  - 经营用途审批状态
+- 高级经营假设：
+  - 免租期
+  - 押金月数
+  - 其他月成本
+  - 水电、人工、营销、保险
+  - 牌照费、复原成本
+  - 年租金递增
+  - 年收入增长
+  - turnover rent
+  - 开业爬坡月数
+  - 折现率
+  - 日顾客数、客单价、毛利率
+  - 门头、层高、得房率、仓储、座位数
+
+### 4. 可追溯评分与风险标记
+
+系统当前使用的是“规则驱动的可追溯评分”，不是让 LLM 直接决定总分。
+
+输出包括：
+
+- `0-100` 总分
+- `scoreBreakdown`
+- 分项评分组件
+- `riskFlags`
+- 置信度等级
+- 结论性 verdict
+
+当前设计原则：
+
+- 数字评分由结构化规则模型决定
+- LLM 负责图像理解和建议性文本
+- 不再让 LLM 直接篡改总分
+
+### 5. 折现现金流与压力测试
+
+系统当前已经不是简单回本计算，而是租期现金流模型。会输出：
+
+- `NPV`
+- `IRR`
+- `Discounted Payback`
+- `Break-Even Daily Customers`
+- 月度现金流表
+- 三组情景：
+  - `BASE`
+  - `DOWN -10%`
+  - `SEVERE -25%`
+
+### 6. What-if 模拟
+
+在结果页底部可以实时调整：
+
+- 客流
+- 客单价
+- 租金
+
+系统会同步更新：
+
+- 月利润
+- 回本月数
+- 租金压力
+
+### 7. 候选点对比
+
+用户可以手动添加最多 `3` 个候选点，并分别填写：
+
+- 地址
+- 月租
+
+系统会对这些候选点分别输出：
+
+- 基线 NPV
+- 对应地图观察
+- 按相同假设下的对比结果
+
+说明：当前是“用户手动选择候选点，再比较”。  
+系统**不会自动编造备选地址**。
+
+### 8. 公共市场证据
+
+结果页会展示公开市场证据模块，包括：
+
+- URA 零售租金指数快照
+- 数据来源与更新时间
+- retrieval mode
+
+说明：这些是“市场上下文”，不是该铺位的真实成交租金。
+
+### 9. 匿名结果校准
+
+当前支持本地校准流程：
+
+- 录入实际经营结果
+- 导出匿名 JSON
+- 导入匿名 JSON
+- 查看样本量与基础偏差统计
+
+这套功能用于后续校准模型，不会导出图片或地址文本。
+
+### 10. 简易登录
+
+当前系统支持统一访客口令登录，适合公网测试或小范围演示。
+
+- 登录接口：`/api/auth/login`
+- Session 检查：`/api/auth/session`
+- 注销接口：`/api/auth/logout`
+
+这不是正式生产级多用户权限系统，只是一个轻量访问门槛。
+
+## 当前技术结构
+
+### 前端
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Leaflet
+
+### 后端
+
+- FastAPI
+- SQLAlchemy
+- AsyncPG
+- Alembic
+- Redis
+
+### 基础服务
+
+- PostgreSQL + pgvector
+- Redis
+- Nginx
+- Docker Compose
+
+## 当前模型配置
+
+当前仓库默认按以下方式配置：
+
+- LLM 提供商：`GLM`
+- Base URL：`https://open.bigmodel.cn/api/paas/v4`
+- 模型：`glm-4.1v-thinking-flash`
+
+说明：
+
+- LLM 主要用于空间理解、结构化提取和建议文本
+- 最终数值总分与现金流逻辑不直接由 LLM 决定
+
+## 需要的外部能力
+
+### 1. GLM API Key
+
+需要配置：
+
+```text
+LEASENS_LLM_API_KEY
+```
+
+### 2. Google Places API Key
+
+需要配置：
+
+```text
+LEASENS_GOOGLE_PLACES_API_KEY
+```
+
+官方申请说明：
+
+- https://developers.google.com/maps/documentation/places/web-service/get-api-key
+- https://console.cloud.google.com/google/maps-apis/credentials
+
+说明：
+
+- 地址自动补全和地址解析依赖 Google Places
+- 附近商家观察也依赖 Google Places
+- Key 只在后端使用，不应暴露到前端
+
+## 环境变量
+
+仓库根目录使用 `.env`。
+
+至少需要确认这些变量：
+
+```text
+LEASENS_LLM_API_KEY=
+LEASENS_LLM_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+LEASENS_LLM_MODEL=glm-4.1v-thinking-flash
+
+LEASENS_GOOGLE_PLACES_API_KEY=
+LEASENS_GOOGLE_PLACES_SEARCH_RADIUS_METERS=500
+
+LEASENS_DEMO_AUTH_ENABLED=true
+LEASENS_DEMO_AUTH_USERNAME=demo
+LEASENS_DEMO_AUTH_PASSWORD=LeaseLensDemo2026!
+LEASENS_DEMO_AUTH_SECRET=replace-with-a-random-secret
+
+PUBLIC_HTTP_PORT=8080
+```
+
+如果你本机通过代理访问外网，当前仓库也支持：
+
+```text
+DOCKER_BUILD_HTTP_PROXY=
+DOCKER_BUILD_HTTPS_PROXY=
+DOCKER_BUILD_NO_PROXY=
+DOCKER_RUNTIME_HTTP_PROXY=
+DOCKER_RUNTIME_HTTPS_PROXY=
+DOCKER_RUNTIME_NO_PROXY=
+```
+
+## 启动方式
+
+### 方案 A：当前默认 compose
+
+这是当前仓库主用的启动方式：
 
 ```bash
-docker compose -f docker-compose.portable.yml up --build -d
+sudo docker compose up -d --build
 ```
 
 启动后访问：
 
 ```text
-http://localhost:8080/
+http://127.0.0.1:8080
 ```
 
-### 4. 停止系统
+当前默认 compose 的特点：
+
+- `api` 通过宿主机网络访问外部代理
+- `db` 映射到宿主机 `15432`
+- `redis` 映射到宿主机 `16379`
+
+这样做的原因是兼容本机已有服务和代理环境，避免占用常见的 `5432 / 6379`。
+
+### 方案 B：portable compose
+
+如果你的环境更适合纯容器内部互联，也可以使用：
 
 ```bash
-docker compose -f docker-compose.portable.yml down
+sudo docker compose -f docker-compose.portable.yml up -d --build
 ```
 
-## 环境变量说明
+## 常用检查命令
 
-### LLM 相关
+查看容器状态：
 
-- `LEASENS_LLM_API_KEY`：智谱 API Key
-- `LEASENS_LLM_BASE_URL`：智谱接口地址
-- `LEASENS_LLM_MODEL`：使用的 GLM 模型名称
-- `LEASENS_LLM_TIMEOUT_SECONDS`：模型调用超时秒数
+```bash
+sudo docker compose ps
+```
 
-### Google Places 相关
+查看日志：
 
-- `LEASENS_GOOGLE_PLACES_API_KEY`：Google Places API (New) 服务端 Key
-- `LEASENS_GOOGLE_PLACES_SEARCH_RADIUS_METERS`：附近搜索半径，单位米
-
-### 演示登录相关
-
-- `LEASENS_DEMO_AUTH_ENABLED`：是否启用公网测试登录
-- `LEASENS_DEMO_AUTH_USERNAME`：统一访客用户名
-- `LEASENS_DEMO_AUTH_PASSWORD`：统一访客密码
-- `LEASENS_DEMO_AUTH_SECRET`：Cookie 签名密钥
-- `LEASENS_DEMO_AUTH_COOKIE_NAME`：登录 Cookie 名称
-
-### 代理相关
-
-如果你的网络环境访问 Docker Hub、智谱或 Google API 需要代理，请按需配置：
-
-- `DOCKER_BUILD_HTTP_PROXY`
-- `DOCKER_BUILD_HTTPS_PROXY`
-- `DOCKER_BUILD_NO_PROXY`
-- `DOCKER_RUNTIME_HTTP_PROXY`
-- `DOCKER_RUNTIME_HTTPS_PROXY`
-- `DOCKER_RUNTIME_NO_PROXY`
-
-如果你不需要代理，这些变量可以留空。
-
-## Google Places API Key 申请
-
-申请入口：
-
-- Google Maps Platform 控制台：<https://console.cloud.google.com/google/maps-apis/start>
-- Places API (New) 官方说明：<https://developers.google.com/maps/documentation/places/web-service/get-api-key>
-
-申请时需要完成：
-
-1. 创建或选择一个 Google Cloud 项目
-2. 绑定 Billing Account
-3. 启用 `Places API (New)`
-4. 创建 API Key
-5. 将 Key 限制为仅允许 `Places API (New)`
-
-说明：
-
-- 地址搜索和真实周边地点查询都依赖 Google Places API
-- 该 Key 仅在后端使用，不应暴露到前端代码中
-
-## 使用方式
-
-启动后，典型流程如下：
-
-1. 打开 `http://localhost:8080/`
-2. 上传铺位图片
-3. 填写业态、月租金、面积
-4. 选择定位方式：
-   - 使用当前位置
-   - 输入地址并搜索定位
-5. 点击分析
-6. 在工作台中查看：
-   - 四个 Agent 的实时分析输出
-   - `Decision Plan` 决策型 Blueprint
-   - `Live Market` 真实周边地图
-
-如果启用了演示登录，用户访问首页后会先看到一个简单登录页。登录成功后才会进入上传分析界面。
-
-## 部署验证
+```bash
+sudo docker compose logs -f api
+sudo docker compose logs -f web
+sudo docker compose logs -f nginx
+```
 
 健康检查：
 
@@ -158,124 +322,89 @@ docker compose -f docker-compose.portable.yml down
 curl -i http://127.0.0.1:8080/api/v1/health
 ```
 
-预期结果：
+Session 检查：
 
-- 返回 `HTTP 200`
+```bash
+curl -i http://127.0.0.1:8080/api/auth/session
+```
 
 地址搜索检查：
 
 ```bash
 curl -i -X POST http://127.0.0.1:8080/api/locations/autocomplete \
   -H 'Content-Type: application/json' \
-  --data '{"input":"Shanghai","sessionToken":"session-token-1"}'
+  --data '{"input":"Nanyang Technological University","sessionToken":"session-token-1"}'
 ```
 
-预期结果：
+## 当前接口能力
 
-- 返回 `HTTP 200`
-- 响应体中包含 `predictions`
+### 认证
 
-## Compose 文件说明
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/session`
 
-仓库中包含两份 Compose 配置：
+### 地址
 
-### `docker-compose.portable.yml`
+- `POST /api/locations/autocomplete`
+- `POST /api/locations/resolve`
 
-这是公开部署的默认方案，适合：
+### 分析
 
-- GitHub 用户本地部署
-- Windows / macOS / Linux 跨平台使用
-- 标准 Docker bridge 网络环境
+- `POST /api/v1/analyze`
 
-特点：
+### 报告
 
-- 容器间通过服务名通信
-- `api` 连接 `db:5432` 与 `redis:6379`
-- `nginx` 反代到 `api:8000`
-- 不依赖 `network_mode: host`
+- `GET /api/v1/reports/{id}`
 
-### `docker-compose.yml`
+### 校准
 
-这是维护者当前机器使用的本地配置，不作为公开部署默认入口。它可能包含针对特定宿主机网络、代理或端口环境的调整。
+- `POST /api/v1/calibration/outcomes`
+- `GET /api/v1/calibration/export`
+- `POST /api/v1/calibration/import`
+- `GET /api/v1/calibration/summary`
 
-如果你只是从 GitHub 克隆项目并本地运行，请优先使用：
+## 已知边界
 
-```bash
-docker compose -f docker-compose.portable.yml up --build -d
-```
+这套系统现在更适合叫：
 
-## Windows 说明
+> 商铺租赁初筛与尽调辅助系统
 
-- 建议使用 Docker Desktop
-- 建议保持在 Linux containers 模式
-- 推荐直接使用 `docker-compose.portable.yml`
-- 如果宿主机代理运行在本机，通常应通过 `host.docker.internal` 供容器访问
+而不是“自动投资决策系统”。
 
-## 常见问题
+原因很明确：
 
-### 1. Docker 镜像拉取失败
+- 它输出的是基于输入假设与公开数据的经济模型
+- 不保证真实营业额
+- 不保证真实成交租金
+- 不能替代经纪、律师、会计或业主谈判
+- 推荐地址自动生成功能当前关闭，不会输出虚构备选点
 
-表现：
+## 适合的使用场景
 
-- 拉取 `python`、`node`、`nginx`、`pgvector` 等镜像时报超时
+- 小商户选址初筛
+- F&B 铺位租前尽调
+- 多候选铺位对比
+- 公开演示版本
+- 本地部署研究版本
 
-排查：
+## 不适合直接宣称的能力
 
-- 检查 Docker 是否能访问 Docker Hub
-- 如果需要代理，确认 `DOCKER_BUILD_HTTP_PROXY` 和 `DOCKER_BUILD_HTTPS_PROXY` 已正确配置
+- 保证盈利
+- 替代正式估值报告
+- 替代法律合规意见
+- 替代真实市场调研
+- 替代生产级账号权限系统
 
-### 2. 地址搜索返回 503
+## 当前仓库状态说明
 
-表现：
+当前 README 描述的是“仓库现在已经落地的功能”，不是路线图。
 
-- 页面提示 `Address suggestions are unavailable.`
-- 或接口返回 `{"detail":"Location search is unavailable."}`
+如果后续你继续扩展：
 
-排查：
+- 更完整的多用户权限
+- 真正的中心化校准数据平台
+- 自动候选地址生成
+- 更多官方市场数据接入
 
-- 确认 `LEASENS_GOOGLE_PLACES_API_KEY` 已配置
-- 确认 `Places API (New)` 已启用
-- 确认运行时代理配置允许后端访问 Google Places
-
-### 3. 页面上传图片时报 413
-
-表现：
-
-- 页面提示 `HTTP 413`
-
-原因：
-
-- 请求体超过 Nginx 限制
-
-当前仓库中的 Nginx 配置已为图片上传调整过请求大小限制。如果你自行改过 Nginx 配置，需要同步检查 `client_max_body_size`。
-
-### 4. 端口冲突
-
-默认对外端口为：
-
-- `8080`
-
-如果宿主机该端口已被占用，可在 `.env` 中调整：
-
-```text
-PUBLIC_HTTP_PORT="8081"
-```
-
-### 5. 公网测试登录无法使用
-
-排查：
-
-- 确认 `LEASENS_DEMO_AUTH_ENABLED=true`
-- 确认用户名、密码、签名密钥都已配置
-- 修改 `.env` 后重新启动容器
-
-说明：
-
-- 这套登录只用于公网演示和临时测试
-- 它不是生产级鉴权系统
-
-## 安全说明
-
-- 不要将真实 `.env` 提交到 Git 仓库
-- `.env` 中的 LLM Key 和 Google Places Key 都应视为敏感信息
-- 如果密钥曾经暴露，请立即在服务提供方后台轮换
+需要同步更新本 README，避免文档和实际代码再次脱节。

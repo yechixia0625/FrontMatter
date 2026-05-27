@@ -41,5 +41,6 @@ def test_spatial_invalid_fragment_uses_valid_fallback():
     result = SpatialAgent().parse_response('{"spatialBlueprint":{"bad":true}}')
 
     assert result["spatialBlueprint"]["elements"][0]["type"] == "door"
+    assert result["spatialBlueprint"]["heatZones"][0]["type"] == "high_visibility"
     assert len(result["spatialBlueprint"]["flowPath"]) >= 2
     assert result["spatialBlueprint"]["zoneInsights"][0]["reason"]

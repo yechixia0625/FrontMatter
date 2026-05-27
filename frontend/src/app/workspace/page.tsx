@@ -8,6 +8,7 @@ import { useSSEStream } from "@/hooks/useSSEStream";
 import { AnalysisService } from "@/services/AnalysisService";
 import { AuthService } from "@/services/authService";
 import {
+  clearPendingAnalysis,
   getPendingAnalysis,
   type AnalysisIntake,
 } from "@/services/intakeTransfer";
@@ -21,19 +22,20 @@ export default function WorkspacePage() {
   useEffect(() => {
     let active = true;
     AuthService.session()
-      .then((session) => {
+      .then(async (session) => {
         if (!active) return;
         if (!session.authenticated) {
           router.replace("/");
           return;
         }
-        const pending = getPendingAnalysis();
+        const pending = await getPendingAnalysis();
         if (!pending) {
           router.replace("/");
           return;
         }
         setIntake(pending.intake);
         connect(AnalysisService.createFormData(pending.file, pending.intake));
+        void clearPendingAnalysis();
         setAuthChecked(true);
       })
       .catch(() => {

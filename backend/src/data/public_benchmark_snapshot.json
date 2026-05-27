@@ -1,0 +1,94 @@
+{
+  "status": "context_available",
+  "retrievalMode": "snapshot",
+  "snapshotVersion": "2026-05-27.sg-public-v1",
+  "sources": [
+    {
+      "id": "ura-commercial-rental-index",
+      "publisher": "Urban Redevelopment Authority (URA)",
+      "title": "COMMERCIAL RENTAL INDEX (BASE QUARTER 1998-Q4 = 100), QUARTERLY",
+      "url": "https://data.gov.sg/datasets/d_862c74b13138382b9f0c50c68d436b95/view",
+      "licence": "Singapore Open Data Licence; free for personal or commercial use",
+      "accessedDate": "2026-05-27",
+      "dataUpdatedDate": "2026-04-27"
+    },
+    {
+      "id": "ura-retail-rental-analysis",
+      "publisher": "Urban Redevelopment Authority (URA)",
+      "title": "Rentals of Retail Space by Postal District, Floor Level and Floor Area",
+      "url": "https://eservice.ura.gov.sg/property-market-information/pmiCommercialRentalRetailAnalysis",
+      "licence": "Public reference page; observation export not bundled",
+      "accessedDate": "2026-05-27",
+      "dataUpdatedDate": null
+    },
+    {
+      "id": "singstat-rsi-fsi",
+      "publisher": "Singapore Department of Statistics (SingStat)",
+      "title": "Retail Sales and Food & Beverage Services Indices",
+      "url": "https://www.singstat.gov.sg/find-data/search-by-theme/industry/services",
+      "licence": "Public reference page; observation export not bundled",
+      "accessedDate": "2026-05-27",
+      "dataUpdatedDate": null
+    },
+    {
+      "id": "abs-mas-sora",
+      "publisher": "Association of Banks in Singapore / Monetary Authority of Singapore",
+      "title": "Singapore Overnight Rate Average (SORA)",
+      "url": "https://www.abs.org.sg/benchmark-rates/about-sora",
+      "licence": "Public benchmark reference",
+      "accessedDate": "2026-05-27",
+      "dataUpdatedDate": null
+    }
+  ],
+  "observations": [
+    {
+      "key": "ura_retail_rental_index",
+      "label": "URA retail commercial rental index",
+      "value": 80.1,
+      "unit": "index (1998-Q4 = 100)",
+      "period": "2026-Q1",
+      "geography": "Singapore retail commercial space",
+      "status": "observed",
+      "sourceId": "ura-commercial-rental-index",
+      "usedInCashFlow": false,
+      "note": "Market trend context only; an index is not site-specific rent."
+    },
+    {
+      "key": "site_specific_market_rent",
+      "label": "Site-specific comparable gross rent",
+      "value": null,
+      "unit": "S$/sqm/month",
+      "period": null,
+      "geography": "Selected site",
+      "status": "reference_only",
+      "sourceId": "ura-retail-rental-analysis",
+      "usedInCashFlow": false,
+      "note": "Retrieve scoped comparables from URA when evaluating a stated candidate rent."
+    },
+    {
+      "key": "industry_demand_index",
+      "label": "Relevant retail or F&B demand index",
+      "value": null,
+      "unit": "index",
+      "period": null,
+      "geography": "Singapore",
+      "status": "reference_only",
+      "sourceId": "singstat-rsi-fsi",
+      "usedInCashFlow": false,
+      "note": "Industry demand source registered; no unverified value is distributed in this snapshot."
+    },
+    {
+      "key": "discount_rate_reference",
+      "label": "SORA risk-free reference",
+      "value": null,
+      "unit": "annual rate",
+      "period": null,
+      "geography": "Singapore",
+      "status": "reference_only",
+      "sourceId": "abs-mas-sora",
+      "usedInCashFlow": false,
+      "note": "User-entered discount rate remains the cash-flow input until a dated rate snapshot is refreshed."
+    }
+  ],
+  "note": "Public market context is shown for diligence. Site-specific rent is not inferred and no reference-only item changes cash-flow outputs."
+}

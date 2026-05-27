@@ -4,6 +4,7 @@ import time
 
 import pytest
 
+from src.models.schemas.candidate import CandidateSiteInput
 from src.models.schemas.intake import SpaceIntakeRequest
 from src.pipeline.orchestrator import AnalysisOrchestrator
 
@@ -24,7 +25,7 @@ class FakeGeo:
                     "lng": intake.longitude,
                     "type": "cafe",
                     "distanceMeters": 111,
-                    "threatLevel": "HIGH",
+                    "proximityLevel": "HIGH",
                 }
             ],
         }
@@ -48,6 +49,14 @@ class FastLLM:
         "paybackMonths":9.2}}"""
 
 
+class OverconfidentLLM(FastLLM):
+    async def complete(self, prompt: str, system: str = "", **kwargs) -> str:
+        if "strategic summary" in prompt:
+            return """{"summary":{"score":100,"verdict":"APPROVED",
+            "paybackMonths":6.0}}"""
+        return await super().complete(prompt, system, **kwargs)
+
+
 @pytest.fixture
 def fake_intake():
     return SpaceIntakeRequest(
@@ -58,9 +67,26 @@ def fake_intake():
         expected_rent=5200,
         square_meters=80,
         location_mode="address",
-        latitude=31.2304,
-        longitude=121.4737,
-        site_label="Selected Retail Site",
+        latitude=1.3008,
+        longitude=103.8591,
+        site_label="21 Haji Lane, Singapore 189214",
+        lease_term_months=36,
+        service_charge_monthly=450,
+        fitout_budget=50000,
+        cooking_intensity="light",
+        floor_position="ground",
+        layout_shape="regular",
+        has_water_supply="yes",
+        has_floor_trap="yes",
+        has_grease_trap="yes",
+        electrical_readiness="yes",
+        has_gas="unknown",
+        has_exhaust="yes",
+        wastewater_readiness="yes",
+        approved_use_status="confirmed",
+        expected_daily_customers=260,
+        average_spend=22,
+        gross_margin=0.68,
     )
 
 
@@ -76,7 +102,7 @@ async def test_report_is_last_raw_sse_data_frame(fake_intake):
     payloads = [json.loads(chunk.split("data: ", 1)[1]) for chunk in chunks]
 
     assert chunks[-1].startswith("data: ")
-    assert payloads[-1]["summary"]["verdict"] == "APPROVED WITH CONDITIONS"
+    assert payloads[-1]["summary"]["verdict"] == "PROCEED TO DUE DILIGENCE"
     assert "event" not in payloads[-1]
     assert payloads[-1]["mapData"]["competitors"][0]["name"] == "Verified Cafe"
     assert all(payload["event"] == "agent_log" for payload in payloads[:-1])
@@ -99,3 +125,51 @@ async def test_places_failure_returns_unavailable_market_without_fake_competitor
 
     assert payload["mapData"]["status"] == "unavailable"
     assert payload["mapData"]["competitors"] == []
+
+
+@pytest.mark.asyncio
+async def test_report_includes_fixed_llm_score_breakdown_and_recommendations(fake_intake):
+    chunks = await collect_chunks(AnalysisOrchestrator(FastLLM(), FakeGeo()), fake_intake)
+    payload = json.loads(chunks[-1].split("data: ", 1)[1])
+
+    breakdown = payload["summary"]["scoreBreakdown"]
+    assert breakdown["maxFixedScore"] == 100
+    assert breakdown["maxLlmScore"] == 0
+    assert 0 <= breakdown["fixedScore"] <= 100
+    assert breakdown["llmScore"] == 0
+    assert payload["summary"]["score"] == breakdown["totalScore"]
+    assert sum(component["maxScore"] for component in breakdown["components"]) == 60
+    assert payload["recommendedLocations"] == []
+    assert payload["economicAnalysis"]["npv"] > 0
+    assert (
+        payload["economicAnalysis"]["scenarios"]["severe_downside"]["npv"]
+        < payload["economicAnalysis"]["scenarios"]["baseline"]["npv"]
+    )
+    assert payload["marketBenchmarks"]["retrievalMode"] == "snapshot"
+    assert payload["marketBenchmarks"]["observations"][0]["usedInCashFlow"] is False
+
+
+@pytest.mark.asyncio
+async def test_strategy_llm_score_does_not_change_traceable_total(fake_intake):
+    chunks = await collect_chunks(AnalysisOrchestrator(OverconfidentLLM(), FakeGeo()), fake_intake)
+    payload = json.loads(chunks[-1].split("data: ", 1)[1])
+
+    assert payload["summary"]["scoreBreakdown"]["llmScore"] == 0
+    assert payload["summary"]["score"] <= 100
+
+
+@pytest.mark.asyncio
+async def test_report_compares_only_user_submitted_candidate_sites(fake_intake):
+    candidate = CandidateSiteInput(
+        label="User selected option",
+        monthlyRent=4100,
+        latitude=1.305,
+        longitude=103.86,
+    )
+    intake = fake_intake.model_copy(update={"candidate_sites": [candidate]})
+    chunks = await collect_chunks(AnalysisOrchestrator(FastLLM(), FakeGeo()), intake)
+    payload = json.loads(chunks[-1].split("data: ", 1)[1])
+
+    assert len(payload["candidateComparisons"]) == 1
+    assert payload["candidateComparisons"][0]["label"] == "User selected option"
+    assert payload["candidateComparisons"][0]["financialModel"]["baseRent"] == 4100

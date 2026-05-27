@@ -7,8 +7,11 @@ from src.models.schemas.intake import SpaceIntakeRequest
 from src.models.schemas.report import LeaseLensReport
 from src.models.schemas.streaming import AgentLogEvent, ErrorEvent
 from src.pipeline.stream import SSEStreamManager
+from src.services.benchmarks import BenchmarkService
+from src.services.candidate_comparison import compare_candidates
 from src.services.geo import GeoService
 from src.services.llm import LLMService
+from src.services.scoring import build_economic_analysis, enrich_summary, recommend_locations
 
 
 class AnalysisOrchestrator:
@@ -19,7 +22,9 @@ class AnalysisOrchestrator:
 
     def __init__(self, llm_service: LLMService, geo_service: GeoService):
         self._llm = llm_service
+        self._geo = geo_service
         self._agents = get_all_agents(geo_service)
+        self._benchmarks = BenchmarkService()
 
     async def run(self, intake: SpaceIntakeRequest) -> AsyncGenerator[str, None]:
         """
@@ -41,7 +46,7 @@ class AnalysisOrchestrator:
             yield SSEStreamManager.format_sse("error", error_event.model_dump())
             return
 
-        final_report = self._assemble_report(results, intake)
+        final_report = await self._assemble_report(results, intake)
         yield SSEStreamManager.format_data(final_report.model_dump())
 
     async def _run_agents(
@@ -93,7 +98,7 @@ class AnalysisOrchestrator:
             raise
         return partial_data
 
-    def _assemble_report(
+    async def _assemble_report(
         self, results: list[dict | BaseException], intake: SpaceIntakeRequest
     ) -> LeaseLensReport:
         """Merge all agent partial outputs into the final LeaseLensReport."""
@@ -132,9 +137,31 @@ class AnalysisOrchestrator:
             }
         if "summary" not in merged:
             merged["summary"] = {
-                "score": 70,
-                "verdict": "APPROVED WITH CONDITIONS",
-                "paybackMonths": 12.0,
+                "score": 0,
+                "verdict": "ADVISORY ONLY - DCF CONTROLS DECISION",
+                "paybackMonths": 0,
             }
+
+        merged["economicAnalysis"] = build_economic_analysis(intake, merged["financialModel"])
+        merged["marketBenchmarks"] = self._benchmarks.market_context(intake).model_dump()
+        merged["summary"] = enrich_summary(
+            intake,
+            merged["financialModel"],
+            merged["mapData"],
+            merged["summary"],
+            economics=merged["economicAnalysis"],
+        )
+        merged["recommendedLocations"] = recommend_locations(
+            intake,
+            merged["mapData"],
+            merged["summary"],
+        )
+        comparisons = await compare_candidates(
+            intake,
+            intake.candidate_sites,
+            self._geo,
+            self._benchmarks,
+        )
+        merged["candidateComparisons"] = [item.model_dump() for item in comparisons]
 
         return LeaseLensReport(**merged)

@@ -7,7 +7,7 @@ from src.services.geo import GeoService
 
 
 @pytest.mark.asyncio
-async def test_nearby_places_uses_pro_fields_and_derives_distance_level():
+async def test_nearby_places_uses_pro_fields_and_derives_proximity_level():
     captured = {}
 
     async def handler(request: httpx.Request) -> httpx.Response:
@@ -49,4 +49,15 @@ async def test_nearby_places_uses_pro_fields_and_derives_distance_level():
     )
     assert result["competitors"][0]["name"] == "Verified Cafe"
     assert result["competitors"][0]["distanceMeters"] > 0
-    assert result["competitors"][0]["threatLevel"] == "HIGH"
+    assert result["competitors"][0]["proximityLevel"] == "HIGH"
+    assert "threatLevel" not in result["competitors"][0]
+
+
+@pytest.mark.asyncio
+async def test_placeholder_places_key_is_treated_as_unconfigured():
+    service = GeoService(Settings(google_places_api_key="replace-with-google-places-api-key"))
+
+    with pytest.raises(RuntimeError, match="Google Places API is not configured"):
+        await service.autocomplete("Tanjong Pagar", "session-token-1")
+
+    await service.close()

@@ -1,4 +1,7 @@
 from src.models.schemas.auth import DemoLoginRequest, DemoSessionResponse
+from src.models.schemas.benchmark import MarketBenchmarkBundle
+from src.models.schemas.candidate import CandidateEvaluation, CandidateSiteInput
+from src.models.schemas.economics import LeaseEconomicsInput, LeaseEconomicsResult
 from src.models.schemas.financial import FinancialModel
 from src.models.schemas.intake import SpaceIntakeRequest
 from src.models.schemas.map import Competitor, MapData
@@ -18,6 +21,11 @@ __all__ = [
     "HeatZone",
     "SpatialBlueprint",
     "FinancialModel",
+    "LeaseEconomicsInput",
+    "LeaseEconomicsResult",
+    "MarketBenchmarkBundle",
+    "CandidateSiteInput",
+    "CandidateEvaluation",
     "Competitor",
     "MapData",
     "Summary",
