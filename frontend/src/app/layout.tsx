@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
+import { I18nProvider } from "@/i18n/I18nProvider";
 
 export const metadata: Metadata = {
-  title: "LeaseLens AI - Commercial Spatial Intelligence",
+  title: "FrontMatter - Commercial Spatial Intelligence",
   description:
     "AI-native commercial lease decision engine. Upload a space, get real-time spatial and financial analysis.",
 };
@@ -15,7 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

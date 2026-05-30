@@ -1,14 +1,14 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from src.exceptions.base import LeaseLensError, NotFoundError, ValidationError
+from src.exceptions.base import FrontMatterError, NotFoundError, ValidationError
 
 
 def register_error_handlers(app: FastAPI) -> None:
     """Register global exception handlers."""
 
-    @app.exception_handler(LeaseLensError)
-    async def leaselens_error_handler(request: Request, exc: LeaseLensError):
+    @app.exception_handler(FrontMatterError)
+    async def frontmatter_error_handler(request: Request, exc: FrontMatterError):
         status_code = 500
         if isinstance(exc, NotFoundError):
             status_code = 404

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { LeaseLensReport } from "@/types/report";
+import { LocaleToggle } from "@/components/shared/LocaleToggle";
+import { useI18n } from "@/i18n/I18nProvider";
+import type { FrontMatterReport } from "@/types/report";
 import { SVGBlueprint } from "@/components/spatial/SVGBlueprint";
 import { MapToggle } from "@/components/spatial/MapToggle";
 import { WhatIfPanel } from "@/components/simulator/WhatIfPanel";
@@ -18,7 +20,7 @@ import { AgentStatusRail } from "./AgentStatusRail";
 
 interface WorkspaceLayoutProps {
   intake: AnalysisIntake;
-  report: LeaseLensReport | null;
+  report: FrontMatterReport | null;
   agentLogs: Record<string, AgentLogEvent[]>;
   status: string;
   error: string | null;
@@ -31,6 +33,7 @@ export function WorkspaceLayout({
   status,
   error,
 }: WorkspaceLayoutProps) {
+  const { t } = useI18n();
   const [showMap, setShowMap] = useState(false);
   const occupancyCost =
     report?.financialModel.totalMonthlyOccupancyCost ??
@@ -69,15 +72,16 @@ export function WorkspaceLayout({
       {/* Top bar */}
       <div className="h-10 border-b border-zinc-800 flex items-center px-4 shrink-0">
         <span className="font-mono text-xs text-zinc-500">
-          LeaseLens<span className="text-white">AI</span>
+          <span className="text-white">{t("brand.name")}</span>
         </span>
         <span className="mx-2 text-zinc-700">/</span>
         <span className="font-mono text-xs text-zinc-400">
           {intake.businessType} - {intake.squareMeters}sqm
         </span>
         <div className="ml-auto flex items-center gap-2">
+          <LocaleToggle />
           <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="font-mono text-xs text-zinc-500">LIVE</span>
+          <span className="font-mono text-xs text-zinc-500">{t("workspace.live")}</span>
         </div>
       </div>
 
@@ -97,7 +101,7 @@ export function WorkspaceLayout({
                 <SVGBlueprint blueprint={report.spatialBlueprint} />
               ) : (
                 <div className="h-full flex items-center justify-center font-mono text-xs text-zinc-500">
-                  [ANALYZING SPATIAL MATRIX...]
+                  [{t("workspace.analyzingSpatial")}]
                 </div>
               )}
             </>
@@ -106,7 +110,7 @@ export function WorkspaceLayout({
             onClick={() => setShowMap(!showMap)}
             className="absolute top-4 right-4 px-3 py-1.5 bg-zinc-900/95 border border-zinc-700 rounded text-xs font-mono hover:bg-zinc-800 transition-colors z-[700]"
           >
-            {showMap ? "Decision Plan" : "Live Market"}
+            {showMap ? t("workspace.decisionPlan") : t("workspace.liveMarket")}
           </button>
         </div>
 
@@ -119,7 +123,9 @@ export function WorkspaceLayout({
               <CalibrationPanel businessType={intake.businessType} report={report} />
             </>
           ) : (
-            <PendingPanel message={error ? `ERROR: ${error}` : "AWAITING MARKET EVIDENCE..."} />
+            <PendingPanel
+              message={error ? `ERROR: ${error}` : t("workspace.awaitingMarketEvidence")}
+            />
           )}
         </div>
 
@@ -141,7 +147,7 @@ export function WorkspaceLayout({
             </>
           ) : (
             <PendingPanel
-              message={error ? `ERROR: ${error}` : "AWAITING DECISION OUTPUT..."}
+              message={error ? `ERROR: ${error}` : t("workspace.awaitingDecisionOutput")}
             />
           )}
         </div>

@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { Upload, X, FileImage } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nProvider";
 
 interface DropZoneProps {
   file: File | null;
@@ -10,6 +11,7 @@ interface DropZoneProps {
 }
 
 export function DropZone({ file, onFileChange }: DropZoneProps) {
+  const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -93,10 +95,10 @@ export function DropZone({ file, onFileChange }: DropZoneProps) {
           <Upload className="w-10 h-10 mx-auto text-zinc-500" />
           <div>
             <p className="text-sm text-zinc-400">
-              Drop space photo or floorplan here
+              {t("intake.dropzone.title")}
             </p>
             <p className="text-xs text-zinc-600 mt-1">
-              PNG, JPG, WEBP up to 10MB
+              {t("intake.dropzone.subtitle")}
             </p>
           </div>
         </div>

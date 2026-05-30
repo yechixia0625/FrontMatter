@@ -1,4 +1,4 @@
-import type { LeaseLensReport } from "@/types/report";
+import type { FrontMatterReport } from "@/types/report";
 import { UnauthorizedError } from "./authService";
 import type { AnalysisIntake } from "./intakeTransfer";
 
@@ -99,7 +99,7 @@ export class AnalysisService {
   /**
    * Fetch a saved report by ID.
    */
-  static async getReport(id: string): Promise<LeaseLensReport> {
+  static async getReport(id: string): Promise<FrontMatterReport> {
     const res = await fetch(`/api/v1/reports/${id}`);
     if (!res.ok) throw new Error(`Report fetch failed: ${res.status}`);
     return res.json();

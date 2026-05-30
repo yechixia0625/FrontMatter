@@ -1,7 +1,7 @@
 import pytest
 
-from src.api.deps import provide_geo_service, provide_settings
-from src.config.settings import Settings
+from src.api.deps import provide_geo_service
+from src.config.settings import get_settings
 
 
 class StubGeoService:
@@ -56,19 +56,16 @@ async def test_location_resolution_returns_selected_coordinate(client):
 
 
 @pytest.mark.asyncio
-async def test_location_autocomplete_requires_auth_when_demo_auth_enabled(client, app):
-    async def override_settings():
-        return Settings(
-            demo_auth_enabled=True,
-            demo_auth_username="demo",
-            demo_auth_password="secret-pass",
-            demo_auth_secret="super-secret-signing-key",
-        )
-
-    app.dependency_overrides[provide_settings] = override_settings
+async def test_location_autocomplete_requires_auth_when_demo_auth_enabled(client, monkeypatch):
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_ENABLED", "true")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_USERNAME", "demo")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_PASSWORD", "secret-pass")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_SECRET", "super-secret-signing-key")
+    get_settings.cache_clear()
     response = await client.post(
         "/api/locations/autocomplete",
         json={"input": "Market Street", "sessionToken": "session-token-1"},
     )
 
     assert response.status_code == 401
+    get_settings.cache_clear()

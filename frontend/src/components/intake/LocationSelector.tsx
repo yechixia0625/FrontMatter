@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Crosshair, MapPin, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/I18nProvider";
 import { isUnauthorizedError } from "@/services/authService";
 import { LocationService, type LocationPrediction } from "@/services/locationService";
 import type { SiteLocation } from "@/services/intakeTransfer";
@@ -20,6 +21,7 @@ function createSessionToken() {
 }
 
 export function LocationSelector({ value, onChange }: LocationSelectorProps) {
+  const { t } = useI18n();
   const [mode, setMode] = useState<"current" | "address">("current");
   const [query, setQuery] = useState("");
   const [predictions, setPredictions] = useState<LocationPrediction[]>([]);
@@ -41,17 +43,17 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
         setPredictions(await LocationService.autocomplete(query.trim(), sessionToken));
       } catch (err) {
         if (isUnauthorizedError(err)) {
-          setError("Session expired. Please sign in again.");
+          setError(t("location.error.sessionExpired"));
           window.location.assign("/");
           return;
         }
-        setError("Address suggestions are unavailable.");
+        setError(t("location.error.unavailable"));
       } finally {
         setPending(false);
       }
     }, 350);
     return () => window.clearTimeout(timeout);
-  }, [canSearchAddress, query, sessionToken]);
+  }, [canSearchAddress, query, sessionToken, t]);
 
   function switchMode(nextMode: "current" | "address") {
     setMode(nextMode);
@@ -71,7 +73,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
         setPending(false);
       },
       () => {
-        setError("Location permission denied. Search an address instead.");
+        setError(t("location.error.permissionDenied"));
         setPending(false);
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -88,11 +90,11 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
       setPredictions([]);
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        setError("Session expired. Please sign in again.");
+        setError(t("location.error.sessionExpired"));
         window.location.assign("/");
         return;
       }
-      setError("Could not resolve this address.");
+      setError(t("location.error.resolve"));
     } finally {
       setPending(false);
     }
@@ -101,8 +103,8 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
   return (
     <section className="border border-zinc-800 bg-zinc-950/70 rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-xs tracking-[0.18em] text-zinc-500">SITE LOCATION</span>
-        {value && <span className="font-mono text-[10px] text-lime-300">VERIFIED</span>}
+        <span className="font-mono text-xs tracking-[0.18em] text-zinc-500">{t("location.title")}</span>
+        {value && <span className="font-mono text-[10px] text-lime-300">{t("location.verified")}</span>}
       </div>
       <div className="grid grid-cols-2 gap-2">
         <button
@@ -113,7 +115,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             mode === "current" ? "border-lime-300 text-lime-200 bg-lime-300/5" : "border-zinc-800 text-zinc-500"
           )}
         >
-          <Crosshair className="w-3.5 h-3.5" /> At site now
+          <Crosshair className="w-3.5 h-3.5" /> {t("location.currentMode")}
         </button>
         <button
           type="button"
@@ -123,13 +125,13 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             mode === "address" ? "border-lime-300 text-lime-200 bg-lime-300/5" : "border-zinc-800 text-zinc-500"
           )}
         >
-          <Search className="w-3.5 h-3.5" /> Search address
+          <Search className="w-3.5 h-3.5" /> {t("location.addressMode")}
         </button>
       </div>
       {mode === "current" ? (
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-zinc-500">
-            Use this only while physically at the retail site being evaluated.
+            {t("location.currentHint")}
           </p>
           <button
             type="button"
@@ -137,7 +139,11 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             onClick={locateCurrentSite}
             className="w-full border border-zinc-700 py-2 font-mono text-xs hover:border-lime-300 disabled:opacity-50"
           >
-            {pending ? "LOCATING..." : value?.mode === "current" ? "LOCATION CONFIRMED" : "AUTHORIZE LOCATION"}
+            {pending
+              ? t("location.locating")
+              : value?.mode === "current"
+                ? t("location.locationConfirmed")
+                : t("location.authorizeLocation")}
           </button>
         </div>
       ) : (
@@ -148,7 +154,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
               setQuery(event.target.value);
               onChange(null);
             }}
-            placeholder="Search the retail site address"
+            placeholder={t("location.searchPlaceholder")}
             className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-zinc-600"
           />
           {visiblePredictions.length > 0 && (
@@ -167,7 +173,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             </div>
           )}
           <p className="text-[11px] text-zinc-500">
-            Select a matched address to verify coordinates before analysis.
+            {t("location.searchHint")}
           </p>
         </div>
       )}

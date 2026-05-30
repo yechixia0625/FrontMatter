@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "leaselens-backend"
+name = "frontmatter-backend"
 version = "0.1.0"
-description = "LeaseLens AI - Commercial Spatial Intelligence Platform"
+description = "FrontMatter - Commercial Spatial Intelligence Platform"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.110.0",

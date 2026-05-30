@@ -5,7 +5,7 @@ from src.models.schemas.economics import LeaseEconomicsInput, LeaseEconomicsResu
 from src.models.schemas.financial import FinancialModel
 from src.models.schemas.intake import SpaceIntakeRequest
 from src.models.schemas.map import Competitor, MapData
-from src.models.schemas.report import LeaseLensReport
+from src.models.schemas.report import FrontMatterReport
 from src.models.schemas.spatial import BlueprintElement, HeatZone, SpatialBlueprint
 from src.models.schemas.streaming import (
     AgentLogEvent,
@@ -29,7 +29,7 @@ __all__ = [
     "Competitor",
     "MapData",
     "Summary",
-    "LeaseLensReport",
+    "FrontMatterReport",
     "SpaceIntakeRequest",
     "AgentStatus",
     "AgentLogEvent",

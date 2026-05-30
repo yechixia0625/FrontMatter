@@ -1,8 +1,7 @@
 import pytest
 
-from src.api.deps import provide_settings
 from src.api.v1.calibration import provide_calibration_service
-from src.config.settings import Settings
+from src.config.settings import get_settings
 from src.models.schemas.calibration import (
     AnonymousOutcomeDataset,
     AnonymousOutcomeRecord,
@@ -29,21 +28,20 @@ class StubCalibrationService:
 
 
 @pytest.fixture(autouse=True)
-def demo_auth_settings(app):
-    async def override_settings():
-        return Settings(
-            demo_auth_enabled=True,
-            demo_auth_username="demo",
-            demo_auth_password="secret-pass",
-            demo_auth_secret="super-secret-signing-key",
-        )
+def demo_auth_settings(app, monkeypatch):
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_ENABLED", "true")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_USERNAME", "demo")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_PASSWORD", "secret-pass")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_SECRET", "super-secret-signing-key")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_COOKIE_NAME", "frontmatter_demo_session")
+    get_settings.cache_clear()
 
     async def override_calibration_service():
         return StubCalibrationService()
 
-    app.dependency_overrides[provide_settings] = override_settings
     app.dependency_overrides[provide_calibration_service] = override_calibration_service
     yield
+    get_settings.cache_clear()
     app.dependency_overrides.clear()
 
 

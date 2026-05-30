@@ -18,8 +18,11 @@ import {
 import { AuthService } from "@/services/authService";
 import { storePendingAnalysis } from "@/services/intakeTransfer";
 import type { AnalysisIntake, SiteLocation } from "@/services/intakeTransfer";
+import { useI18n } from "@/i18n/I18nProvider";
+import { LocaleToggle } from "@/components/shared/LocaleToggle";
 
 export default function IntakePage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
@@ -66,7 +69,12 @@ export default function IntakePage() {
 
   const handleAnalyze = async () => {
     if (!canAnalyze) return;
-    const intake = buildAnalysisIntake(formValues, location!, candidateSites);
+    const intake = buildAnalysisIntake(
+      formValues,
+      location!,
+      candidateSites,
+      t("candidate.currentLocation"),
+    );
 
     await storePendingAnalysis({
       file: file!,
@@ -79,7 +87,9 @@ export default function IntakePage() {
   if (!authChecked) {
     return (
       <main className="min-h-screen blueprint-grid flex items-center justify-center p-8">
-        <div className="font-mono text-xs tracking-[0.18em] text-zinc-500">CHECKING SESSION...</div>
+        <div className="font-mono text-xs tracking-[0.18em] text-zinc-500">
+          {t("auth.checkingSession")}
+        </div>
       </main>
     );
   }
@@ -95,13 +105,16 @@ export default function IntakePage() {
   return (
     <main className="min-h-screen blueprint-grid flex items-center justify-center p-8">
       <div className="w-full max-w-2xl space-y-8">
+        <div className="flex justify-end">
+          <LocaleToggle />
+        </div>
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">
-            Lease<span className="text-zinc-500">Lens</span>
+            {t("brand.name")}
           </h1>
           <p className="text-zinc-500 font-mono text-sm">
-            Singapore shop-location intelligence for small businesses
+            {t("intake.tagline")}
           </p>
         </div>
 
@@ -109,7 +122,7 @@ export default function IntakePage() {
         <DropZone file={file} onFileChange={setFile} />
         {file && !supportedFile && (
           <p className="text-xs font-mono text-red-500">
-            Upload a PNG, JPG, or WEBP image no larger than 10MB.
+            {t("intake.unsupportedFile")}
           </p>
         )}
 
@@ -134,7 +147,8 @@ export default function IntakePage() {
 function buildAnalysisIntake(
   values: IntakeFormValues,
   location: SiteLocation,
-  candidateDrafts: CandidateDraft[]
+  candidateDrafts: CandidateDraft[],
+  defaultCandidateLabel: string,
 ): AnalysisIntake {
   return {
     businessType: values.businessType,
@@ -188,7 +202,7 @@ function buildAnalysisIntake(
       }
       return [
         {
-          label: candidate.location.siteLabel ?? "Current location candidate",
+          label: candidate.location.siteLabel ?? defaultCandidateLabel,
           monthlyRent,
           latitude: candidate.location.latitude,
           longitude: candidate.location.longitude,

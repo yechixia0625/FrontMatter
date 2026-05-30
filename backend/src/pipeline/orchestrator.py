@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from src.agents import get_all_agents
 from src.agents.base import BaseAgent
 from src.models.schemas.intake import SpaceIntakeRequest
-from src.models.schemas.report import LeaseLensReport
+from src.models.schemas.report import FrontMatterReport
 from src.models.schemas.streaming import AgentLogEvent, ErrorEvent
 from src.pipeline.stream import SSEStreamManager
 from src.services.benchmarks import BenchmarkService
@@ -17,7 +17,7 @@ from src.services.scoring import build_economic_analysis, enrich_summary, recomm
 class AnalysisOrchestrator:
     """
     Runs 4 agents concurrently via asyncio.gather.
-    Collects their partial results and assembles the final LeaseLensReport.
+    Collects their partial results and assembles the final FrontMatterReport.
     """
 
     def __init__(self, llm_service: LLMService, geo_service: GeoService):
@@ -30,7 +30,7 @@ class AnalysisOrchestrator:
         """
         Main entry point. Yields SSE-formatted strings:
           - agent_log events during processing
-          - final unnamed data frame with the complete LeaseLensReport
+          - final unnamed data frame with the complete FrontMatterReport
         """
         stream = SSEStreamManager()
 
@@ -100,8 +100,8 @@ class AnalysisOrchestrator:
 
     async def _assemble_report(
         self, results: list[dict | BaseException], intake: SpaceIntakeRequest
-    ) -> LeaseLensReport:
-        """Merge all agent partial outputs into the final LeaseLensReport."""
+    ) -> FrontMatterReport:
+        """Merge all agent partial outputs into the final FrontMatterReport."""
         merged: dict = {}
         for r in results:
             if isinstance(r, dict):
@@ -164,4 +164,4 @@ class AnalysisOrchestrator:
         )
         merged["candidateComparisons"] = [item.model_dump() for item in comparisons]
 
-        return LeaseLensReport(**merged)
+        return FrontMatterReport(**merged)

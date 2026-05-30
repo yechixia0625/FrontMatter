@@ -17,7 +17,7 @@ class AgentLogEvent(BaseModel):
 
 
 class ReportFinalEvent(BaseModel):
-    """Final SSE event carrying the complete LeaseLensReport."""
+    """Final SSE event carrying the complete FrontMatterReport."""
 
     event: Literal["report_final"] = "report_final"
     report: dict

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 import type {
   ApprovedUseStatus,
@@ -113,45 +114,46 @@ interface IntakeFormProps {
 }
 
 export function IntakeForm({ values, onChange }: IntakeFormProps) {
+  const { t } = useI18n();
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   return (
     <div className="space-y-4">
       <section className="space-y-3">
-        <SectionLabel>Basic</SectionLabel>
+        <SectionLabel>{t("intake.basic")}</SectionLabel>
         <div className="grid grid-cols-3 gap-3">
           <TextField
-            label="Industry"
-            placeholder="Cafe, bakery, boutique"
+            label={t("intake.businessType.label")}
+            placeholder={t("intake.businessType.placeholder")}
             value={values.businessType}
             onChange={(value) => onChange("businessType", value)}
           />
           <NumberField
-            label="Monthly Rent"
+            label={t("intake.expectedRent.label")}
             placeholder="5000"
             value={values.expectedRent}
             onChange={(value) => onChange("expectedRent", value)}
           />
           <NumberField
-            label="Shop Size"
+            label={t("intake.squareMeters.label")}
             placeholder="80"
             value={values.squareMeters}
             onChange={(value) => onChange("squareMeters", value)}
           />
           <NumberField
-            label="Lease Term"
+            label={t("intake.leaseTermMonths.label")}
             placeholder="36"
             value={values.leaseTermMonths}
             onChange={(value) => onChange("leaseTermMonths", value)}
           />
           <NumberField
-            label="Service Charge"
+            label={t("intake.serviceChargeMonthly.label")}
             placeholder="0"
             value={values.serviceChargeMonthly}
             onChange={(value) => onChange("serviceChargeMonthly", value)}
           />
           <NumberField
-            label="Fit-out Budget"
+            label={t("intake.fitoutBudget.label")}
             placeholder="60000"
             value={values.fitoutBudget}
             onChange={(value) => onChange("fitoutBudget", value)}
@@ -160,39 +162,39 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
       </section>
 
       <section className="space-y-3 border border-zinc-800 p-4">
-        <SectionLabel>F&B Readiness</SectionLabel>
+        <SectionLabel>{t("intake.fnbReadiness")}</SectionLabel>
         <div className="grid grid-cols-3 gap-3">
           <Segmented
-            label="Cooking"
+            label={t("intake.cooking.label")}
             value={values.cookingIntensity}
             options={[
-              ["none", "None"],
-              ["light", "Light"],
-              ["full", "Full"],
+              ["none", t("intake.cooking.none")],
+              ["light", t("intake.cooking.light")],
+              ["full", t("intake.cooking.full")],
             ]}
             onChange={(value) => onChange("cookingIntensity", value)}
           />
           <SelectField
-            label="Floor"
+            label={t("intake.floor.label")}
             value={values.floorPosition}
             options={[
-              ["basement", "Basement"],
-              ["ground", "Ground"],
-              ["upper", "Upper"],
-              ["mall", "Mall"],
-              ["unknown", "Unknown"],
+              ["basement", t("intake.floor.basement")],
+              ["ground", t("intake.floor.ground")],
+              ["upper", t("intake.floor.upper")],
+              ["mall", t("intake.floor.mall")],
+              ["unknown", t("intake.floor.unknown")],
             ]}
             onChange={(value) => onChange("floorPosition", value)}
           />
           <SelectField
-            label="Layout"
+            label={t("intake.layout.label")}
             value={values.layoutShape}
             options={[
-              ["regular", "Regular"],
-              ["narrow", "Narrow"],
-              ["corner", "Corner"],
-              ["irregular", "Irregular"],
-              ["unknown", "Unknown"],
+              ["regular", t("intake.layout.regular")],
+              ["narrow", t("intake.layout.narrow")],
+              ["corner", t("intake.layout.corner")],
+              ["irregular", t("intake.layout.irregular")],
+              ["unknown", t("intake.layout.unknown")],
             ]}
             onChange={(value) => onChange("layoutShape", value)}
           />
@@ -200,47 +202,47 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
 
         <div className="grid grid-cols-2 gap-2">
           <ReadinessRow
-            label="Water"
+            label={t("intake.readiness.water")}
             value={values.hasWaterSupply}
             onChange={(value) => onChange("hasWaterSupply", value)}
           />
           <ReadinessRow
-            label="Power"
+            label={t("intake.readiness.power")}
             value={values.electricalReadiness}
             onChange={(value) => onChange("electricalReadiness", value)}
           />
           <ReadinessRow
-            label="Gas"
+            label={t("intake.readiness.gas")}
             value={values.hasGas}
             onChange={(value) => onChange("hasGas", value)}
           />
           <ReadinessRow
-            label="Floor Trap"
+            label={t("intake.readiness.floorTrap")}
             value={values.hasFloorTrap}
             onChange={(value) => onChange("hasFloorTrap", value)}
           />
           <ReadinessRow
-            label="Grease Trap"
+            label={t("intake.readiness.greaseTrap")}
             value={values.hasGreaseTrap}
             onChange={(value) => onChange("hasGreaseTrap", value)}
           />
           <ReadinessRow
-            label="Exhaust"
+            label={t("intake.readiness.exhaust")}
             value={values.hasExhaust}
             onChange={(value) => onChange("hasExhaust", value)}
           />
           <ReadinessRow
-            label="Wastewater"
+            label={t("intake.readiness.wastewater")}
             value={values.wastewaterReadiness}
             onChange={(value) => onChange("wastewaterReadiness", value)}
           />
           <Segmented
-            label="Approved Use"
+            label={t("intake.approvedUse.label")}
             value={values.approvedUseStatus}
             options={[
-              ["confirmed", "OK"],
-              ["unknown", "?"],
-              ["needs_change_of_use", "Change"],
+              ["confirmed", t("intake.approvedUse.confirmed")],
+              ["unknown", t("intake.approvedUse.unknown")],
+              ["needs_change_of_use", t("intake.approvedUse.change")],
             ]}
             onChange={(value) => onChange("approvedUseStatus", value)}
           />
@@ -253,7 +255,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
           onClick={() => setAdvancedOpen((open) => !open)}
           className="flex w-full items-center justify-between px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500"
         >
-          Advanced assumptions
+          {t("intake.advanced")}
           <ChevronDown
             size={14}
             className={cn("transition-transform", advancedOpen && "rotate-180")}
@@ -262,68 +264,68 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
         {advancedOpen && (
           <div className="grid grid-cols-3 gap-3 border-t border-zinc-800 p-4">
             <NumberField
-              label="Rent-free"
+              label={t("intake.rentFree.label")}
               placeholder="2"
               value={values.rentFreeMonths}
               onChange={(value) => onChange("rentFreeMonths", value)}
             />
             <NumberField
-              label="Deposit"
+              label={t("intake.deposit.label")}
               placeholder="3"
               value={values.depositMonths}
               onChange={(value) => onChange("depositMonths", value)}
             />
             <NumberField
-              label="Other Costs"
+              label={t("intake.otherCosts.label")}
               placeholder="1200"
               value={values.otherMonthlyCosts}
               onChange={(value) => onChange("otherMonthlyCosts", value)}
             />
             <NumberField
-              label="Utilities"
+              label={t("intake.utilities.label")}
               placeholder="900"
               value={values.utilitiesMonthlyEstimate}
               onChange={(value) => onChange("utilitiesMonthlyEstimate", value)}
             />
             <NumberField
-              label="Staffing"
+              label={t("intake.staffing.label")}
               placeholder="12000"
               value={values.staffingMonthly}
               onChange={(value) => onChange("staffingMonthly", value)}
             />
             <NumberField
-              label="Marketing"
+              label={t("intake.marketing.label")}
               placeholder="700"
               value={values.marketingMonthly}
               onChange={(value) => onChange("marketingMonthly", value)}
             />
             <NumberField
-              label="Insurance"
+              label={t("intake.insurance.label")}
               placeholder="250"
               value={values.insuranceMonthly}
               onChange={(value) => onChange("insuranceMonthly", value)}
             />
             <NumberField
-              label="Licence Fees"
+              label={t("intake.licenseFees.label")}
               placeholder="900"
               value={values.licenseFees}
               onChange={(value) => onChange("licenseFees", value)}
             />
             <NumberField
-              label="Reinstatement"
+              label={t("intake.reinstatement.label")}
               placeholder="15000"
               value={values.reinstatementCost}
               onChange={(value) => onChange("reinstatementCost", value)}
             />
             <NumberField
-              label="Rent Escalation / Yr"
+              label={t("intake.rentEscalation.label")}
               placeholder="0.03"
               value={values.annualRentEscalation}
               step="0.01"
               onChange={(value) => onChange("annualRentEscalation", value)}
             />
             <NumberField
-              label="Revenue Growth / Yr"
+              label={t("intake.revenueGrowth.label")}
               placeholder="0.02"
               value={values.annualRevenueGrowth}
               min="-1"
@@ -331,94 +333,94 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
               onChange={(value) => onChange("annualRevenueGrowth", value)}
             />
             <NumberField
-              label="Turnover Rent Rate"
+              label={t("intake.turnoverRentRate.label")}
               placeholder="0.02"
               value={values.turnoverRentRate}
               step="0.01"
               onChange={(value) => onChange("turnoverRentRate", value)}
             />
             <NumberField
-              label="Opening Ramp Months"
+              label={t("intake.openingRampMonths.label")}
               placeholder="3"
               value={values.openingRampMonths}
               onChange={(value) => onChange("openingRampMonths", value)}
             />
             <NumberField
-              label="Discount Rate / Yr"
+              label={t("intake.discountRate.label")}
               placeholder="0.08"
               value={values.discountRateAnnual}
               step="0.01"
               onChange={(value) => onChange("discountRateAnnual", value)}
             />
             <NumberField
-              label="Daily Customers"
+              label={t("intake.dailyCustomers.label")}
               placeholder="140"
               value={values.expectedDailyCustomers}
               onChange={(value) => onChange("expectedDailyCustomers", value)}
             />
             <NumberField
-              label="Average Spend"
+              label={t("intake.averageSpend.label")}
               placeholder="18"
               value={values.averageSpend}
               onChange={(value) => onChange("averageSpend", value)}
             />
             <NumberField
-              label="Gross Margin"
+              label={t("intake.grossMargin.label")}
               placeholder="0.68"
               value={values.grossMargin}
               step="0.01"
               onChange={(value) => onChange("grossMargin", value)}
             />
             <NumberField
-              label="Frontage"
+              label={t("intake.frontage.label")}
               placeholder="6"
               value={values.frontageWidthM}
               step="0.1"
               onChange={(value) => onChange("frontageWidthM", value)}
             />
             <NumberField
-              label="Ceiling"
+              label={t("intake.ceiling.label")}
               placeholder="3.2"
               value={values.ceilingHeightM}
               step="0.1"
               onChange={(value) => onChange("ceilingHeightM", value)}
             />
             <NumberField
-              label="Usable Ratio"
+              label={t("intake.usableRatio.label")}
               placeholder="0.78"
               value={values.usableAreaRatio}
               step="0.01"
               onChange={(value) => onChange("usableAreaRatio", value)}
             />
             <NumberField
-              label="Storage"
+              label={t("intake.storage.label")}
               placeholder="8"
               value={values.storageAreaSqm}
               onChange={(value) => onChange("storageAreaSqm", value)}
             />
             <NumberField
-              label="Seats"
+              label={t("intake.seats.label")}
               placeholder="32"
               value={values.seatingCapacity}
               onChange={(value) => onChange("seatingCapacity", value)}
             />
             <ReadinessRow
-              label="Loading"
+              label={t("intake.readiness.loading")}
               value={values.loadingAccess}
               onChange={(value) => onChange("loadingAccess", value)}
             />
             <ReadinessRow
-              label="Toilet"
+              label={t("intake.readiness.toilet")}
               value={values.toiletAccess}
               onChange={(value) => onChange("toiletAccess", value)}
             />
             <ReadinessRow
-              label="Signage"
+              label={t("intake.readiness.signage")}
               value={values.signageVisibility}
               onChange={(value) => onChange("signageVisibility", value)}
             />
             <ReadinessRow
-              label="Exhaust Route"
+              label={t("intake.readiness.exhaustRoute")}
               value={values.exhaustRouteAvailable}
               onChange={(value) => onChange("exhaustRouteAvailable", value)}
             />
@@ -579,14 +581,15 @@ function ReadinessRow({
   value: Readiness;
   onChange: (value: Readiness) => void;
 }) {
+  const { t } = useI18n();
   return (
     <Segmented
       label={label}
       value={value}
       options={[
-        ["yes", "Yes"],
-        ["unknown", "?"],
-        ["no", "No"],
+        ["yes", t("intake.readiness.yes")],
+        ["unknown", t("intake.approvedUse.unknown")],
+        ["no", t("intake.readiness.no")],
       ]}
       onChange={onChange}
     />

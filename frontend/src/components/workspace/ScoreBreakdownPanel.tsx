@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Gauge, ShieldCheck } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 import type { Summary } from "@/types/report";
 
 interface ScoreBreakdownPanelProps {
@@ -8,6 +9,7 @@ interface ScoreBreakdownPanelProps {
 }
 
 export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
+  const { t } = useI18n();
   const breakdown = summary.scoreBreakdown;
   const fixedPercent = breakdown
     ? (breakdown.fixedScore / breakdown.maxFixedScore) * 100
@@ -20,22 +22,22 @@ export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
         <div>
           <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em] text-zinc-500">
             <Gauge size={13} />
-            Singapore lease score
+            {t("score.title")}
           </div>
           <div className="mt-2 flex items-end gap-2">
             <span className="font-mono text-5xl font-bold text-white">
               {summary.score}
             </span>
-            <span className="pb-2 font-mono text-xs text-zinc-500">/100</span>
+            <span className="pb-2 font-mono text-xs text-zinc-500">{t("score.outOf100")}</span>
           </div>
         </div>
         <div className="max-w-[8rem] text-right">
           <div className="inline-flex items-center gap-1 rounded border border-zinc-700 px-2 py-1 font-mono text-[10px] text-zinc-300">
             <ShieldCheck size={12} />
-            {breakdown?.confidence ?? "LOW"}
+            {translateConfidence(t, breakdown?.confidence ?? "LOW")}
           </div>
           <p className="mt-2 break-words font-mono text-[10px] uppercase text-zinc-500">
-            {summary.verdict}
+            {translateVerdict(t, summary.verdict)}
           </p>
         </div>
       </div>
@@ -43,7 +45,7 @@ export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
       {breakdown && (
         <div className="mt-4 space-y-3">
           <ScoreBar
-            label="Traceable model"
+            label={t("score.traceableModel")}
             value={breakdown.fixedScore}
             max={breakdown.maxFixedScore}
             percent={fixedPercent}
@@ -66,7 +68,7 @@ export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
                 </p>
                 {component.assumptionsUsed && component.assumptionsUsed.length > 0 && (
                   <p className="mt-1 line-clamp-1 font-mono text-[10px] text-zinc-600">
-                    {component.assumptionsUsed.length} assumptions
+                    {t("score.assumptions", { count: component.assumptionsUsed.length })}
                   </p>
                 )}
               </div>
@@ -77,7 +79,7 @@ export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
             <div className="space-y-2 border-t border-zinc-800 pt-3">
               <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
                 <AlertTriangle size={12} />
-                Risk flags
+                {t("score.riskFlags")}
               </div>
               {displayedRiskFlags.map((flag) => (
                 <div
@@ -85,7 +87,7 @@ export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
                   className={`border px-2 py-1.5 text-[11px] leading-4 ${riskTone(flag.severity)}`}
                 >
                   <div className="font-mono text-[10px] uppercase">
-                    {flag.severity} / {flag.domain}
+                    {translateSeverity(t, flag.severity)} / {flag.domain}
                   </div>
                   <p className="mt-0.5 text-zinc-300">{flag.message}</p>
                 </div>
@@ -96,6 +98,26 @@ export function ScoreBreakdownPanel({ summary }: ScoreBreakdownPanelProps) {
       )}
     </section>
   );
+}
+
+function translateConfidence(t: (key: string) => string, confidence: string) {
+  if (confidence === "HIGH") return t("score.confidence.high");
+  if (confidence === "MEDIUM") return t("score.confidence.medium");
+  return t("score.confidence.low");
+}
+
+function translateSeverity(t: (key: string) => string, severity: string) {
+  if (severity === "critical") return t("score.severity.critical");
+  if (severity === "warning") return t("score.severity.warning");
+  return t("score.severity.info");
+}
+
+function translateVerdict(t: (key: string) => string, verdict: string) {
+  if (verdict === "PROCEED TO DUE DILIGENCE") return t("score.verdict.proceed");
+  if (verdict === "VERIFY CRITICAL CONDITIONS BEFORE PROCEEDING") return t("score.verdict.verify");
+  if (verdict === "ECONOMICALLY WEAK UNDER STATED ASSUMPTIONS") return t("score.verdict.weak");
+  if (verdict === "ADVISORY ONLY - DCF CONTROLS DECISION") return t("score.verdict.advisory");
+  return verdict;
 }
 
 function sortRiskFlags<T extends { severity: string }>(riskFlags: T[]) {

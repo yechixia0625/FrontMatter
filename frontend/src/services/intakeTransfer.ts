@@ -73,7 +73,7 @@ export interface PendingAnalysis {
 
 const PENDING_ANALYSIS_STORE = "pending-analysis";
 const PENDING_ANALYSIS_KEY = "active";
-const DB_NAME = "leaselens-intake";
+const DB_NAME = "frontmatter-intake";
 const DB_VERSION = 1;
 
 let pendingAnalysis: PendingAnalysis | null = null;

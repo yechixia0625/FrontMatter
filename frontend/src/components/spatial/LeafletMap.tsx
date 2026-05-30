@@ -1,6 +1,7 @@
 "use client";
 
 import { CircleMarker, MapContainer, Popup, TileLayer } from "react-leaflet";
+import { useI18n } from "@/i18n/I18nProvider";
 import type { MapData, Competitor } from "@/types/map";
 import { DARK_TILES_ATTRIBUTION, DARK_TILES_URL, DEFAULT_MAP_ZOOM } from "@/lib/map-tiles";
 
@@ -15,12 +16,13 @@ function markerColor(proximityLevel: Competitor["proximityLevel"]): string {
 }
 
 export default function LeafletMap({ mapData }: LeafletMapProps) {
+  const { t } = useI18n();
   return (
     <div className="relative h-full w-full">
       <div className="absolute left-4 top-4 z-[500] space-y-1 bg-black/90 px-3 py-2 font-mono">
-        <p className="text-[10px] tracking-[0.2em] text-lime-300">LIVE MARKET / GOOGLE PLACES</p>
+        <p className="text-[10px] tracking-[0.2em] text-lime-300">{t("map.liveMarket")}</p>
         <p className="text-[10px] text-zinc-400">
-          {mapData.locationMode === "current" ? "CURRENT LOCATION" : "SELECTED ADDRESS"} / {mapData.searchRadiusMeters} M
+          {mapData.locationMode === "current" ? t("map.currentLocation") : t("map.selectedAddress")} / {mapData.searchRadiusMeters} M
         </p>
       </div>
       <MapContainer center={mapData.center} zoom={DEFAULT_MAP_ZOOM} className="h-full w-full">
@@ -31,9 +33,9 @@ export default function LeafletMap({ mapData }: LeafletMapProps) {
           pathOptions={{ color: "#bed269", weight: 3, fillColor: "#bed269", fillOpacity: 0.65 }}
         >
           <Popup>
-            <strong>Target Site</strong>
+            <strong>{t("map.targetSite")}</strong>
             <br />
-            {mapData.siteLabel ?? "Current location"}
+            {mapData.siteLabel ?? t("map.currentLocationLabel")}
           </Popup>
         </CircleMarker>
         {mapData.status === "available" &&
@@ -55,7 +57,7 @@ export default function LeafletMap({ mapData }: LeafletMapProps) {
                   <br />
                   {competitor.type} / {competitor.distanceMeters} M
                   <br />
-                  Proximity: {competitor.proximityLevel}
+                  {t("map.proximity")}: {competitor.proximityLevel}
                 </span>
               </Popup>
             </CircleMarker>
@@ -63,10 +65,10 @@ export default function LeafletMap({ mapData }: LeafletMapProps) {
       </MapContainer>
       <div className="absolute bottom-6 left-4 right-4 z-[500] border border-zinc-700 bg-black/90 p-3 font-mono text-[10px]">
         {mapData.status === "unavailable" ? (
-          <span className="text-amber-300">{mapData.message ?? "Live nearby-place data is unavailable."}</span>
+          <span className="text-amber-300">{mapData.message ?? t("map.unavailable")}</span>
         ) : (
           <span className="text-zinc-300">
-            {mapData.competitors.length} VERIFIED NEARBY LOCATIONS / PROXIMITY LEVEL DERIVED FROM DISTANCE
+            {t("map.verifiedNearby", { count: mapData.competitors.length })}
           </span>
         )}
       </div>

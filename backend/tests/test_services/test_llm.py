@@ -20,7 +20,7 @@ class CaptureClient:
 
 @pytest.mark.asyncio
 async def test_multimodal_completion_embeds_uploaded_image_as_data_url():
-    service = LLMService(Settings(llm_api_key="unit-test-key"))
+    service = LLMService(Settings(_env_file=None, llm_api_key="glm-test-key"))
     capture = CaptureClient()
     service._client = capture
 
@@ -41,7 +41,7 @@ async def test_multimodal_completion_embeds_uploaded_image_as_data_url():
 async def test_missing_or_placeholder_api_key_returns_demo_strategy_json_without_network(
     api_key,
 ):
-    service = LLMService(Settings(llm_api_key=api_key))
+    service = LLMService(Settings(_env_file=None, llm_api_key=api_key))
 
     result = await service.complete("Generate a strategic summary with verdict.")
     await service.close()

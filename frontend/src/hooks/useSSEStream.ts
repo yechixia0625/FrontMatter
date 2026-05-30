@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { ANALYSIS_API_PATH } from "@/services/AnalysisService";
 import { UnauthorizedError } from "@/services/authService";
 import { classifySSEPayload } from "@/lib/sse";
-import type { LeaseLensReport } from "@/types/report";
+import type { FrontMatterReport } from "@/types/report";
 import type { AgentLogEvent } from "@/types/streaming";
 
 type StreamStatus = "idle" | "connecting" | "streaming" | "complete" | "error";
@@ -12,7 +12,7 @@ type StreamStatus = "idle" | "connecting" | "streaming" | "complete" | "error";
 interface UseSSEStreamReturn {
   status: StreamStatus;
   agentLogs: Record<string, AgentLogEvent[]>;
-  finalReport: LeaseLensReport | null;
+  finalReport: FrontMatterReport | null;
   error: string | null;
   connect: (formData: FormData) => void;
   disconnect: () => void;
@@ -27,7 +27,7 @@ export function useSSEStream(): UseSSEStreamReturn {
     competition: [],
     strategy: [],
   });
-  const [finalReport, setFinalReport] = useState<LeaseLensReport | null>(null);
+  const [finalReport, setFinalReport] = useState<FrontMatterReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const disconnect = useCallback(() => {

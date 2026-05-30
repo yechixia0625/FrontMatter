@@ -1,35 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-const LOADING_LINES = [
-  "[Initializing Spatial Matrix...]",
-  "[Connecting to Analysis Engine...]",
-  "[Loading Financial Models...]",
-  "[Scanning Competitive Landscape...]",
-  "[Preparing Spatial Blueprints...]",
-  "[Calibrating Heat Zone Algorithms...]",
-  "[Syncing Multi-Agent Pipeline...]",
-  "[Ready.]",
-];
+import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export function HackerLoading() {
+  const { t } = useI18n();
+  const loadingLines = useMemo(
+    () => [
+      t("loading.initSpatial"),
+      t("loading.connectingEngine"),
+      t("loading.loadingFinance"),
+      t("loading.scanningCompetition"),
+      t("loading.preparingBlueprints"),
+      t("loading.calibratingZones"),
+      t("loading.syncingPipeline"),
+      t("loading.ready"),
+    ],
+    [t],
+  );
   const [lines, setLines] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    if (currentIndex >= LOADING_LINES.length) return;
+    if (currentIndex >= loadingLines.length) return;
 
     const timer = setTimeout(
       () => {
-        setLines((prev) => [...prev, LOADING_LINES[currentIndex]]);
+        setLines((prev) => [...prev, loadingLines[currentIndex]]);
         setCurrentIndex((prev) => prev + 1);
       },
       200 + Math.random() * 300
     );
 
     return () => clearTimeout(timer);
-  }, [currentIndex]);
+  }, [currentIndex, loadingLines]);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-8">
@@ -38,7 +42,7 @@ export function HackerLoading() {
           <div
             key={i}
             className={
-              i === LOADING_LINES.length - 1
+              i === loadingLines.length - 1
                 ? "text-white font-bold"
                 : "text-zinc-500"
             }
@@ -46,7 +50,7 @@ export function HackerLoading() {
             {line}
           </div>
         ))}
-        {currentIndex < LOADING_LINES.length && (
+        {currentIndex < loadingLines.length && (
           <span className="inline-block w-2 h-4 bg-white terminal-cursor" />
         )}
       </div>

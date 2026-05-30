@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/i18n/I18nProvider";
 import type { EconomicAnalysis } from "@/types/report";
 
 interface EconomicAnalysisPanelProps {
@@ -5,35 +8,36 @@ interface EconomicAnalysisPanelProps {
 }
 
 export function EconomicAnalysisPanel({ analysis }: EconomicAnalysisPanelProps) {
+  const { t } = useI18n();
   const scenarios = [
-    ["BASE", analysis.scenarios.baseline],
-    ["DOWN -10%", analysis.scenarios.downside],
-    ["SEVERE -25%", analysis.scenarios.severe_downside],
+    [t("economics.scenario.base"), analysis.scenarios.baseline],
+    [t("economics.scenario.downside"), analysis.scenarios.downside],
+    [t("economics.scenario.severe"), analysis.scenarios.severe_downside],
   ] as const;
 
   return (
     <section className="border-b border-zinc-800 p-4">
       <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-        Discounted Cash Flow
+        {t("economics.title")}
       </div>
       <div className="mt-3 grid grid-cols-2 gap-px bg-zinc-800">
-        <Metric label="NPV" value={formatMoney(analysis.npv)} strong={analysis.npv >= 0} />
+        <Metric label={t("economics.metric.npv")} value={formatMoney(analysis.npv)} strong={analysis.npv >= 0} />
         <Metric
-          label="IRR"
-          value={analysis.irrAnnual == null ? "N/A" : formatPercent(analysis.irrAnnual)}
+          label={t("economics.metric.irr")}
+          value={analysis.irrAnnual == null ? t("economics.notAvailable") : formatPercent(analysis.irrAnnual)}
           strong={(analysis.irrAnnual ?? -1) >= analysis.discountRateAnnual}
         />
         <Metric
-          label="Discounted Payback"
+          label={t("economics.metric.payback")}
           value={
             analysis.discountedPaybackMonths == null
-              ? "NOT REACHED"
-              : `${analysis.discountedPaybackMonths.toFixed(1)} MO`
+              ? t("economics.notReached")
+              : `${analysis.discountedPaybackMonths.toFixed(1)} ${t("economics.monthsShort")}`
           }
         />
         <Metric
-          label="Break-Even Customers"
-          value={`${analysis.breakEvenDailyCustomers.toFixed(1)} / DAY`}
+          label={t("economics.metric.breakEvenCustomers")}
+          value={`${analysis.breakEvenDailyCustomers.toFixed(1)} ${t("economics.perDay")}`}
         />
       </div>
 
@@ -45,13 +49,13 @@ export function EconomicAnalysisPanel({ analysis }: EconomicAnalysisPanelProps) 
           >
             <span className="text-zinc-500">{label}</span>
             <span className={scenario.npv >= 0 ? "text-lime-300" : "text-amber-300"}>
-              NPV {formatMoney(scenario.npv)}
+              {t("economics.metric.npv")} {formatMoney(scenario.npv)}
             </span>
           </div>
         ))}
       </div>
       <p className="mt-3 border-l border-zinc-700 pl-2 font-mono text-[9px] uppercase leading-4 text-zinc-600">
-        Based on disclosed assumptions. Not a turnover guarantee.
+        {t("economics.footer")}
       </p>
     </section>
   );

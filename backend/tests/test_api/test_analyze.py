@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from src.api.deps import provide_analysis_service, provide_settings
-from src.config.settings import Settings
+from src.api.deps import provide_analysis_service
+from src.config.settings import get_settings
 
 
 class StubAnalysisService:
@@ -119,16 +119,12 @@ async def test_analyze_space_rejects_invalid_location_coordinates(client):
 
 
 @pytest.mark.asyncio
-async def test_analyze_space_requires_auth_when_demo_auth_enabled(client, app):
-    async def override_settings():
-        return Settings(
-            demo_auth_enabled=True,
-            demo_auth_username="demo",
-            demo_auth_password="secret-pass",
-            demo_auth_secret="super-secret-signing-key",
-        )
-
-    app.dependency_overrides[provide_settings] = override_settings
+async def test_analyze_space_requires_auth_when_demo_auth_enabled(client, monkeypatch):
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_ENABLED", "true")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_USERNAME", "demo")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_PASSWORD", "secret-pass")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_SECRET", "super-secret-signing-key")
+    get_settings.cache_clear()
     response = await client.post(
         "/api/analyze-space",
         files={"photo": ("unit.png", b"\x89PNG\r\n\x1a\n", "image/png")},
@@ -141,6 +137,7 @@ async def test_analyze_space_requires_auth_when_demo_auth_enabled(client, app):
     )
 
     assert response.status_code == 401
+    get_settings.cache_clear()
 
 
 @pytest.mark.asyncio

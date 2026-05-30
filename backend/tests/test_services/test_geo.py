@@ -26,7 +26,7 @@ async def test_nearby_places_uses_pro_fields_and_derives_proximity_level():
         )
 
     service = GeoService(
-        Settings(google_places_api_key="places-test-key"),
+        Settings(_env_file=None, google_places_api_key="test-google-places-key"),
         client=httpx.AsyncClient(transport=httpx.MockTransport(handler)),
     )
     intake = SpaceIntakeRequest(
@@ -55,7 +55,9 @@ async def test_nearby_places_uses_pro_fields_and_derives_proximity_level():
 
 @pytest.mark.asyncio
 async def test_placeholder_places_key_is_treated_as_unconfigured():
-    service = GeoService(Settings(google_places_api_key="replace-with-google-places-api-key"))
+    service = GeoService(
+        Settings(_env_file=None, google_places_api_key="replace-with-google-places-api-key")
+    )
 
     with pytest.raises(RuntimeError, match="Google Places API is not configured"):
         await service.autocomplete("Tanjong Pagar", "session-token-1")

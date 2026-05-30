@@ -1,6 +1,7 @@
 "use client";
 
 import * as Slider from "@radix-ui/react-slider";
+import { useI18n } from "@/i18n/I18nProvider";
 
 interface SliderControlsProps {
   expectedTraffic: number;
@@ -27,16 +28,19 @@ export function SliderControls({
   maxSpend,
   maxRent,
 }: SliderControlsProps) {
+  const { t } = useI18n();
   return (
     <div className="h-full flex items-center gap-8 px-6">
       {/* Traffic Slider */}
       <div className="flex-1 space-y-1">
         <div className="flex items-center justify-between">
           <span className="text-xs font-mono text-zinc-500 uppercase">
-            {demandBasis === "paying_customers" ? "Daily Customers" : "Expected Traffic"}
+            {demandBasis === "paying_customers"
+              ? t("whatIf.slider.dailyCustomers")
+              : t("whatIf.slider.expectedTraffic")}
           </span>
           <span className="text-xs font-mono text-white tabular-nums">
-            {expectedTraffic}/day
+            {expectedTraffic}{t("whatIf.slider.perDay")}
           </span>
         </div>
         <Control value={expectedTraffic} max={maxTraffic} onChange={onTrafficChange} />
@@ -46,7 +50,7 @@ export function SliderControls({
       <div className="flex-1 space-y-1">
         <div className="flex items-center justify-between">
           <span className="text-xs font-mono text-zinc-500 uppercase">
-            Target Spend
+            {t("whatIf.slider.targetSpend")}
           </span>
           <span className="text-xs font-mono text-white tabular-nums">
             ${averageSpend}
@@ -59,7 +63,7 @@ export function SliderControls({
       <div className="flex-1 space-y-1">
         <div className="flex items-center justify-between">
           <span className="text-xs font-mono text-zinc-500 uppercase">
-            Occupancy Cost
+            {t("whatIf.slider.occupancyCost")}
           </span>
           <span className="text-xs font-mono text-white tabular-nums">
             ${baseRent.toLocaleString()}

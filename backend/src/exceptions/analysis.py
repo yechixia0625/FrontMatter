@@ -1,7 +1,7 @@
-from src.exceptions.base import LeaseLensError
+from src.exceptions.base import FrontMatterError
 
 
-class AnalysisError(LeaseLensError):
+class AnalysisError(FrontMatterError):
     """Analysis pipeline failure."""
 
 

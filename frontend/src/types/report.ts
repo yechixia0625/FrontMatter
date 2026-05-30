@@ -133,7 +133,7 @@ export interface CandidateLocation {
   sourceLinks: SourceLink[];
 }
 
-export interface LeaseLensReport {
+export interface FrontMatterReport {
   summary: Summary;
   spatialBlueprint: SpatialBlueprint;
   financialModel: FinancialModel;

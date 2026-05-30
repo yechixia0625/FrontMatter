@@ -1,17 +1,17 @@
-import type { LeaseLensReport } from "@/types/report";
+import type { FrontMatterReport } from "@/types/report";
 import type { AgentLogEvent, ErrorEvent } from "@/types/streaming";
 
 export type StreamPayload =
   | { kind: "agent_log"; event: AgentLogEvent }
   | { kind: "error"; event: ErrorEvent }
-  | { kind: "report"; report: LeaseLensReport }
+  | { kind: "report"; report: FrontMatterReport }
   | { kind: "unknown" };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-export function isLeaseLensReport(value: unknown): value is LeaseLensReport {
+export function isFrontMatterReport(value: unknown): value is FrontMatterReport {
   if (!isRecord(value)) return false;
   return (
     isRecord(value.summary) &&
@@ -29,7 +29,7 @@ export function classifySSEPayload(value: unknown): StreamPayload {
   if (value.event === "error" && typeof value.message === "string") {
     return { kind: "error", event: value as unknown as ErrorEvent };
   }
-  if (isLeaseLensReport(value)) {
+  if (isFrontMatterReport(value)) {
     return { kind: "report", report: value };
   }
   return { kind: "unknown" };

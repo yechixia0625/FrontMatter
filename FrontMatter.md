@@ -1,7 +1,7 @@
-# 🚀 LeaseLens AI: Master Product & Technical Specification (All-in-One)
+# 🚀 FrontMatter: Master Product & Technical Specification (All-in-One)
 
 > **SYSTEM PROMPT FOR AI CODING AGENT:**
-> You are a Staff-Level Full-Stack Architect and UI/UX Expert. You are tasked with building "LeaseLens AI", a Commercial Spatial Intelligence Platform. 
+> You are a Staff-Level Full-Stack Architect and UI/UX Expert. You are tasked with building "FrontMatter", a Commercial Spatial Intelligence Platform. 
 > This document contains the complete vision, tech stack, feature requirements, and data contracts. 
 > **YOUR PRIME DIRECTIVE:** Read this ENTIRE document to understand the context. Do NOT generate all code at once. Acknowledge this document first, setup the initial project structure, and wait for the user to instruct you phase by phase.
 
@@ -60,7 +60,7 @@ We are using a decoupled monorepo architecture.
 ### Module 5: Python API & Streaming Engine
 * **Endpoint:** `POST /api/analyze-space` (accepts multipart/form-data).
 * **Logic:** Trigger 4 async AI tasks. Yield logs as SSE. 
-* **Final Output:** The very last chunk of the SSE stream MUST be a complete JSON object matching the `LeaseLensReport` schema below.
+* **Final Output:** The very last chunk of the SSE stream MUST be a complete JSON object matching the `FrontMatterReport` schema below.
 
 ---
 

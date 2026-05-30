@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 interface PaybackDisplayProps {
@@ -8,12 +9,13 @@ interface PaybackDisplayProps {
 }
 
 export function PaybackDisplay({ months, isCritical }: PaybackDisplayProps) {
+  const { t } = useI18n();
   const displayValue = isFinite(months) ? months.toFixed(1) : "N/A";
 
   return (
     <div className="flex flex-col items-center space-y-1 pt-2 border-t border-zinc-800">
       <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
-        Payback Period
+        {t("whatIf.paybackPeriod")}
       </span>
       <div
         className={cn(
@@ -24,11 +26,11 @@ export function PaybackDisplay({ months, isCritical }: PaybackDisplayProps) {
         {displayValue}
       </div>
       <span className="text-xs font-mono text-zinc-600">
-        {isFinite(months) ? "months" : ""}
+        {isFinite(months) ? t("whatIf.months") : ""}
       </span>
       {isCritical && (
         <span className="text-xs font-mono text-red-500 uppercase tracking-wider">
-          CRITICAL
+          {t("whatIf.critical")}
         </span>
       )}
     </div>

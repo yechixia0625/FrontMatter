@@ -1,22 +1,24 @@
 import pytest
 
-from src.api.deps import provide_settings
-from src.config.settings import Settings
+from src.app_factory import create_app
+from src.config.settings import get_settings
 
 
 @pytest.fixture(autouse=True)
-def demo_auth_settings(app):
-    async def override_settings():
-        return Settings(
-            demo_auth_enabled=True,
-            demo_auth_username="demo",
-            demo_auth_password="secret-pass",
-            demo_auth_secret="super-secret-signing-key",
-        )
-
-    app.dependency_overrides[provide_settings] = override_settings
+def demo_auth_settings(monkeypatch):
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_ENABLED", "true")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_USERNAME", "demo")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_PASSWORD", "secret-pass")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_SECRET", "super-secret-signing-key")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_COOKIE_NAME", "frontmatter_demo_session")
+    get_settings.cache_clear()
     yield
-    app.dependency_overrides.clear()
+    get_settings.cache_clear()
+
+
+@pytest.fixture
+def app(demo_auth_settings):
+    return create_app()
 
 
 @pytest.mark.asyncio
@@ -29,7 +31,7 @@ async def test_login_sets_cookie(client):
     assert response.status_code == 200
     assert response.json()["authenticated"] is True
     assert "set-cookie" in response.headers
-    assert "leaselens_demo_session=" in response.headers["set-cookie"]
+    assert "frontmatter_demo_session=" in response.headers["set-cookie"]
 
 
 @pytest.mark.asyncio

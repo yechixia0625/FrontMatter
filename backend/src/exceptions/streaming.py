@@ -1,7 +1,7 @@
-from src.exceptions.base import LeaseLensError
+from src.exceptions.base import FrontMatterError
 
 
-class StreamingError(LeaseLensError):
+class StreamingError(FrontMatterError):
     """SSE streaming pipeline failure."""
 
 

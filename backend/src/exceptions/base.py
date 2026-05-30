@@ -1,5 +1,5 @@
-class LeaseLensError(Exception):
-    """Base exception for all LeaseLens errors."""
+class FrontMatterError(Exception):
+    """Base exception for all FrontMatter errors."""
 
     def __init__(self, message: str = "", detail: dict | None = None):
         self.message = message
@@ -7,9 +7,9 @@ class LeaseLensError(Exception):
         super().__init__(self.message)
 
 
-class NotFoundError(LeaseLensError):
+class NotFoundError(FrontMatterError):
     """Resource not found."""
 
 
-class ValidationError(LeaseLensError):
+class ValidationError(FrontMatterError):
     """Input validation failure."""

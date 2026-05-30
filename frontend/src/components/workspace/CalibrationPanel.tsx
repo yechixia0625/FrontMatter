@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "@/i18n/I18nProvider";
 import { CalibrationService } from "@/services/calibrationService";
-import type { LeaseLensReport } from "@/types/report";
+import type { FrontMatterReport } from "@/types/report";
 import type { ActualOutcome, CalibrationSummary } from "@/types/calibration";
 
 interface CalibrationPanelProps {
   businessType: string;
-  report: LeaseLensReport;
+  report: FrontMatterReport;
 }
 
 export function CalibrationPanel({ businessType, report }: CalibrationPanelProps) {
+  const { t } = useI18n();
   const [actualProfit, setActualProfit] = useState("");
   const [outcome, setOutcome] = useState<ActualOutcome>("operating_profitable");
   const [summary, setSummary] = useState<CalibrationSummary | null>(null);
@@ -30,7 +32,7 @@ export function CalibrationPanel({ businessType, report }: CalibrationPanelProps
   async function recordOutcome() {
     const actualMonthlyNetProfit = Number(actualProfit);
     if (!Number.isFinite(actualMonthlyNetProfit)) {
-      setStatus("ENTER ACTUAL MONTHLY PROFIT");
+      setStatus(t("calibration.status.enterActualProfit"));
       return;
     }
     try {
@@ -44,9 +46,9 @@ export function CalibrationPanel({ businessType, report }: CalibrationPanelProps
         actualOutcome: outcome,
       });
       setSummary(await CalibrationService.summary());
-      setStatus("OUTCOME RECORDED LOCALLY");
+      setStatus(t("calibration.status.recorded"));
     } catch {
-      setStatus("OUTCOME SAVE UNAVAILABLE");
+      setStatus(t("calibration.status.saveUnavailable"));
     }
   }
 
@@ -58,12 +60,12 @@ export function CalibrationPanel({ businessType, report }: CalibrationPanelProps
       );
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = "leaselens-anonymous-outcomes.json";
+      link.download = "frontmatter-anonymous-outcomes.json";
       link.click();
       URL.revokeObjectURL(downloadUrl);
-      setStatus("ANONYMOUS DATASET EXPORTED");
+      setStatus(t("calibration.status.exported"));
     } catch {
-      setStatus("EXPORT UNAVAILABLE");
+      setStatus(t("calibration.status.exportUnavailable"));
     }
   }
 
@@ -73,27 +75,26 @@ export function CalibrationPanel({ businessType, report }: CalibrationPanelProps
       const dataset = JSON.parse(await file.text());
       await CalibrationService.importDataset(dataset);
       setSummary(await CalibrationService.summary());
-      setStatus("ANONYMOUS DATASET IMPORTED");
+      setStatus(t("calibration.status.imported"));
     } catch {
-      setStatus("IMPORT REJECTED");
+      setStatus(t("calibration.status.importRejected"));
     }
   }
 
   return (
     <section className="border-b border-zinc-800 p-4">
       <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-        Outcome Calibration
+        {t("calibration.title")}
       </div>
       <p className="mt-1 text-[10px] leading-4 text-zinc-500">
-        Record actual results locally. Exports contain economic outcomes only, without address or
-        image data.
+        {t("calibration.subtitle")}
       </p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <input
           type="number"
           value={actualProfit}
           onChange={(event) => setActualProfit(event.target.value)}
-          placeholder="Actual profit / mo"
+          placeholder={t("calibration.actualProfitPlaceholder")}
           className="col-span-2 border border-zinc-800 bg-black px-2.5 py-2 font-mono text-[11px] text-zinc-200 placeholder:text-zinc-600"
         />
         <select
@@ -101,19 +102,19 @@ export function CalibrationPanel({ businessType, report }: CalibrationPanelProps
           onChange={(event) => setOutcome(event.target.value as ActualOutcome)}
           className="col-span-2 border border-zinc-800 bg-black px-2.5 py-2 font-mono text-[10px] text-zinc-300"
         >
-          <option value="operating_profitable">Operating profitable</option>
-          <option value="operating_unprofitable">Operating unprofitable</option>
-          <option value="abandoned_before_opening">Abandoned before opening</option>
-          <option value="closed">Closed</option>
+          <option value="operating_profitable">{t("calibration.outcome.profitable")}</option>
+          <option value="operating_unprofitable">{t("calibration.outcome.unprofitable")}</option>
+          <option value="abandoned_before_opening">{t("calibration.outcome.abandoned")}</option>
+          <option value="closed">{t("calibration.outcome.closed")}</option>
         </select>
         <button type="button" onClick={recordOutcome} className={buttonClassName}>
-          Record
+          {t("calibration.record")}
         </button>
         <button type="button" onClick={exportDataset} className={buttonClassName}>
-          Export JSON
+          {t("calibration.export")}
         </button>
         <label className={`${buttonClassName} col-span-2 cursor-pointer text-center`}>
-          Import Anonymous JSON
+          {t("calibration.import")}
           <input
             type="file"
             accept="application/json"
@@ -124,10 +125,15 @@ export function CalibrationPanel({ businessType, report }: CalibrationPanelProps
       </div>
       {summary && (
         <div className="mt-3 border border-zinc-800 px-2.5 py-2 font-mono text-[10px] text-zinc-500">
-          SAMPLE {summary.sampleSize}/{summary.minimumSampleSize} REQUIRED
+          {t("calibration.sample", {
+            current: summary.sampleSize,
+            required: summary.minimumSampleSize,
+          })}
           {summary.status === "available" && summary.meanAbsoluteMonthlyProfitError != null && (
             <div className="mt-1 text-zinc-300">
-              MEAN ABS PROFIT ERROR S${summary.meanAbsoluteMonthlyProfitError.toLocaleString()}
+              {t("calibration.meanError", {
+                value: summary.meanAbsoluteMonthlyProfitError.toLocaleString(),
+              })}
             </div>
           )}
         </div>

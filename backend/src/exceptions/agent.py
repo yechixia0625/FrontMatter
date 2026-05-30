@@ -1,7 +1,7 @@
-from src.exceptions.base import LeaseLensError
+from src.exceptions.base import FrontMatterError
 
 
-class AgentError(LeaseLensError):
+class AgentError(FrontMatterError):
     """Base agent execution error."""
 
     def __init__(self, agent_name: str, message: str = "", **kwargs):

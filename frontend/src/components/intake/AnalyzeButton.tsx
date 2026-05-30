@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 interface AnalyzeButtonProps {
@@ -9,6 +10,7 @@ interface AnalyzeButtonProps {
 }
 
 export function AnalyzeButton({ disabled, onClick }: AnalyzeButtonProps) {
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -21,7 +23,7 @@ export function AnalyzeButton({ disabled, onClick }: AnalyzeButtonProps) {
           : "bg-white text-black hover:bg-zinc-200 active:scale-[0.98]"
       )}
     >
-      <span>Analyze Space</span>
+      <span>{t("intake.analyze")}</span>
       <ArrowRight className="w-4 h-4" />
     </button>
   );

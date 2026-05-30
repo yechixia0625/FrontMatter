@@ -10,7 +10,7 @@ from src.models.schemas.spatial import SpatialBlueprint
 from src.models.schemas.summary import Summary
 
 
-class LeaseLensReport(BaseModel):
+class FrontMatterReport(BaseModel):
     """Root data contract - matches the spec JSON exactly."""
 
     summary: Summary

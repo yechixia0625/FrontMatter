@@ -8,11 +8,11 @@ services:
         HTTP_PROXY: ${DOCKER_BUILD_HTTP_PROXY:-}
         HTTPS_PROXY: ${DOCKER_BUILD_HTTPS_PROXY:-}
         NO_PROXY: ${DOCKER_BUILD_NO_PROXY:-localhost,127.0.0.1,::1}
-    command: sh -c "alembic upgrade head && uvicorn src.app_factory:create_app --factory --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "python -m src.bootstrap_database && alembic upgrade head && uvicorn src.app_factory:create_app --factory --host 0.0.0.0 --port 8000 --reload"
     env_file: .env
     environment:
-      LEASENS_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:15432/leaselens
-      LEASENS_REDIS_URL: redis://localhost:16379/0
+      FRONTMATTER_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:15432/frontmatter
+      FRONTMATTER_REDIS_URL: redis://localhost:16379/0
       HTTP_PROXY: ${DOCKER_RUNTIME_HTTP_PROXY:-}
       HTTPS_PROXY: ${DOCKER_RUNTIME_HTTPS_PROXY:-}
       NO_PROXY: ${DOCKER_RUNTIME_NO_PROXY:-localhost,127.0.0.1,::1}
@@ -49,7 +49,7 @@ services:
   db:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_DB: leaselens
+      POSTGRES_DB: frontmatter
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

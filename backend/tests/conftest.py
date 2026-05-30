@@ -7,7 +7,7 @@ from src.config.settings import get_settings
 
 @pytest.fixture
 def isolated_settings(monkeypatch):
-    monkeypatch.setenv("LEASENS_DEMO_AUTH_ENABLED", "false")
+    monkeypatch.setenv("FRONTMATTER_DEMO_AUTH_ENABLED", "false")
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
