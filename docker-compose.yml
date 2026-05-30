@@ -4,10 +4,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       network: host
-      args:
-        HTTP_PROXY: ${DOCKER_BUILD_HTTP_PROXY:-}
-        HTTPS_PROXY: ${DOCKER_BUILD_HTTPS_PROXY:-}
-        NO_PROXY: ${DOCKER_BUILD_NO_PROXY:-localhost,127.0.0.1,::1}
     command: sh -c "python -m src.bootstrap_database && alembic upgrade head && uvicorn src.app_factory:create_app --factory --host 0.0.0.0 --port 8000 --reload"
     env_file: .env
     environment:
@@ -34,10 +30,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        HTTP_PROXY: ${DOCKER_BUILD_HTTP_PROXY:-}
-        HTTPS_PROXY: ${DOCKER_BUILD_HTTPS_PROXY:-}
-        NO_PROXY: ${DOCKER_BUILD_NO_PROXY:-localhost,127.0.0.1,::1}
+      network: host
     command: npm run start
     environment:
       - API_PROXY_TARGET=http://host.docker.internal:8000

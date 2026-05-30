@@ -268,6 +268,12 @@ DOCKER_RUNTIME_HTTPS_PROXY=
 DOCKER_RUNTIME_NO_PROXY=
 ```
 
+注意：
+
+- `DOCKER_BUILD_*` 默认应留空。
+- 不要把 `DOCKER_BUILD_HTTP_PROXY` / `DOCKER_BUILD_HTTPS_PROXY` 设成 `http://127.0.0.1:7897`。构建容器里的 `127.0.0.1` 指向容器自己，不是宿主机，会导致 `npm ci` 或 `pip install` 报 `ECONNREFUSED 127.0.0.1:7897`。
+- 如果确实需要让 Docker 构建阶段走宿主机代理，请改成 Docker 可达地址，例如 `http://host.docker.internal:7897`，并确认你的 Docker 环境支持这个主机名。
+
 ## 启动方式
 
 ### 方案 A：当前默认 compose

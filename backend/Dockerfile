@@ -1,7 +1,4 @@
 FROM docker.1ms.run/library/python:3.11-slim AS base
-ARG HTTP_PROXY
-ARG HTTPS_PROXY
-ARG NO_PROXY
 WORKDIR /app
 COPY pyproject.toml .
 RUN pip install --no-cache-dir .
