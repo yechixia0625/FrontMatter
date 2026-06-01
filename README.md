@@ -1,176 +1,245 @@
 # FrontMatter
 
-面向线下商铺租赁尽调的本地部署系统。  
-输入铺位图片、基础租赁参数、地址与经营假设，系统会输出一份可追溯的租赁评估结果，包括空间分析、附近商业观察、现金流测算、风险标记和候选点对比。
+**FrontMatter is a Singapore-focused commercial lease due diligence system for small businesses.**  
+It helps founders evaluate whether a retail or F&B space is operationally suitable, commercially credible, and financially viable before they sign a lease.
 
-当前仓库已经按本地 Docker 运行方式整理过，默认访问地址为：
+The system combines:
 
-```text
-http://127.0.0.1:8080
-```
+- space-photo analysis
+- address verification and nearby-place observation
+- structured lease and operating inputs
+- discounted cash flow analysis
+- scenario stress testing
+- candidate site comparison
 
-## 这套系统现在能做什么
+FrontMatter is designed as a decision-support product, not a “guaranteed success” predictor.
 
-### 1. 铺位图片分析
+## Project Idea
 
-- 支持上传 `PNG / JPG / WEBP` 图片。
-- 后端会调用视觉模型生成 `spatialBlueprint`，用于输出：
-  - 平面元素识别
-  - 热区与低效区
-  - 基础动线建议
-  - 空间层面的提示性结论
+**FrontMatter turns Singapore shop leases into structured go / no-go business decisions.**
 
-说明：这里是“空间尽调辅助”，不是 CAD 级别的精准测绘。
+## Problem
 
-### 2. 地址定位与地图观察
+In Singapore, renting the wrong commercial space is expensive.
 
-- 用户可以选择：
-  - `At site now`：使用当前定位
-  - `Search address`：手动搜索地址
-- 地址搜索与解析走服务端 Google Places。
-- 分析结果支持：
-  - `Decision Plan`：空间蓝图视图
-  - `Live Market`：地图视图
-- 地图会展示：
-  - 当前评估点
-  - 附近已验证商家
-  - 距离推导出的 `proximityLevel`
+For small operators, especially in F&B, the decision is difficult because:
 
-说明：附近商家是“观察信号”，不是客流证明，也不是自动推荐结论。
+- rent is high
+- fit-out and reinstatement costs are significant
+- compliance constraints are real
+- site visits produce fragmented information
+- lease decisions are still often made with spreadsheets, broker conversations, and intuition
 
-### 3. F&B / 零售租赁尽调输入
+Today, the due diligence workflow is usually manual and scattered:
 
-表单目前支持的不只是基础租金，还包括：
+1. inspect the unit
+2. ask about rent and lease terms
+3. check whether the space is suitable for the intended use
+4. estimate traffic, spend, and costs
+5. make a judgment call
 
-- 基础租赁项：
-  - 月租
-  - 面积
-  - 租期
-  - 服务费
-  - 装修预算
-- F&B readiness：
-  - 烹饪强度
-  - 楼层
-  - 格局
-  - 供水
-  - 电力
-  - 燃气
-  - 地漏
-  - 隔油池
-  - 排烟
-  - 污水
-  - 经营用途审批状态
-- 高级经营假设：
-  - 免租期
-  - 押金月数
-  - 其他月成本
-  - 水电、人工、营销、保险
-  - 牌照费、复原成本
-  - 年租金递增
-  - 年收入增长
-  - turnover rent
-  - 开业爬坡月数
-  - 折现率
-  - 日顾客数、客单价、毛利率
-  - 门头、层高、得房率、仓储、座位数
+FrontMatter restructures that workflow into a traceable product.
 
-### 4. 可追溯评分与风险标记
+## What FrontMatter Does
 
-系统当前使用的是“规则驱动的可追溯评分”，不是让 LLM 直接决定总分。
+FrontMatter accepts three categories of input:
 
-输出包括：
+- **visual input**: a space photo or floorplan
+- **commercial input**: rent, size, lease term, fit-out budget, and operating assumptions
+- **location input**: either current on-site coordinates or a searched address
 
-- `0-100` 总分
-- `scoreBreakdown`
-- 分项评分组件
-- `riskFlags`
-- 置信度等级
-- 结论性 verdict
+It then returns a structured assessment across three layers:
 
-当前设计原则：
+### 1. Spatial and operational fit
 
-- 数字评分由结构化规则模型决定
-- LLM 负责图像理解和建议性文本
-- 不再让 LLM 直接篡改总分
+The system generates a spatial blueprint and visual observations to surface:
 
-### 5. 折现现金流与压力测试
+- circulation and layout issues
+- visibility opportunities
+- inefficient or constrained zones
+- operational friction signals
 
-系统当前已经不是简单回本计算，而是租期现金流模型。会输出：
+This is not CAD-grade surveying. It is a due diligence aid for early-stage lease screening.
 
-- `NPV`
-- `IRR`
-- `Discounted Payback`
-- `Break-Even Daily Customers`
-- 月度现金流表
-- 三组情景：
-  - `BASE`
-  - `DOWN -10%`
-  - `SEVERE -25%`
+### 2. Market and location context
 
-### 6. What-if 模拟
+The system verifies the selected site and shows nearby same-category businesses using Google Places.
 
-在结果页底部可以实时调整：
+It is designed specifically for **Singapore**:
 
-- 客流
-- 客单价
-- 租金
+- address suggestions are restricted to Singapore
+- current-location mode rejects coordinates outside Singapore
+- market evidence is framed around Singapore public data
 
-系统会同步更新：
+Nearby businesses are treated as market observations, not as proof of demand.
 
-- 月利润
-- 回本月数
-- 租金压力
+### 3. Lease economics
 
-### 7. 候选点对比
+FrontMatter does not stop at a simple monthly profit estimate.
 
-用户可以手动添加最多 `3` 个候选点，并分别填写：
+It produces a discounted lease economics view, including:
 
-- 地址
-- 月租
+- NPV
+- IRR
+- discounted payback
+- break-even daily customers
+- scenario comparison
 
-系统会对这些候选点分别输出：
+Stress testing is built in so users can see what happens under weaker demand or tighter economics.
 
-- 基线 NPV
-- 对应地图观察
-- 按相同假设下的对比结果
+## Core Features
 
-说明：当前是“用户手动选择候选点，再比较”。  
-系统**不会自动编造备选地址**。
+### Photo-based intake
 
-### 8. 公共市场证据
+- Upload `PNG`, `JPG`, or `WEBP`
+- Analyze storefront or interior space visuals
+- Generate a structured spatial blueprint
 
-结果页会展示公开市场证据模块，包括：
+### Singapore-only location handling
 
-- URA 零售租金指数快照
-- 数据来源与更新时间
-- retrieval mode
+- `At site now`: uses device geolocation
+- `Search address`: resolves a Singapore address through Google Places
+- Non-Singapore geolocation is explicitly rejected
 
-说明：这些是“市场上下文”，不是该铺位的真实成交租金。
+### Structured lease and operating inputs
 
-### 9. 匿名结果校准
+The intake flow captures:
 
-当前支持本地校准流程：
+- monthly rent
+- shop size
+- lease term
+- service charge
+- fit-out budget
+- rent-free period
+- deposit months
+- utilities
+- staffing
+- marketing
+- insurance
+- licence fees
+- reinstatement cost
+- rent escalation
+- revenue growth
+- turnover rent
+- opening ramp months
+- discount rate
+- daily customers
+- average spend
+- gross margin
 
-- 录入实际经营结果
-- 导出匿名 JSON
-- 导入匿名 JSON
-- 查看样本量与基础偏差统计
+### F&B readiness screening
 
-这套功能用于后续校准模型，不会导出图片或地址文本。
+For restaurant and food-service use cases, the form also captures:
 
-### 10. 简易登录
+- cooking intensity
+- approved use status
+- water readiness
+- electrical readiness
+- gas
+- floor trap
+- grease trap
+- exhaust
+- wastewater
+- loading access
+- signage
 
-当前系统支持统一访客口令登录，适合公网测试或小范围演示。
+This helps the product reflect the operational reality of Singapore F&B site selection.
 
-- 登录接口：`/api/auth/login`
-- Session 检查：`/api/auth/session`
-- 注销接口：`/api/auth/logout`
+### Traceable scoring
 
-这不是正式生产级多用户权限系统，只是一个轻量访问门槛。
+FrontMatter produces a structured score and supporting flags:
 
-## 当前技术结构
+- `0–100` score
+- score breakdown
+- risk flags
+- confidence level
+- verdict
 
-### 前端
+The numeric score is **rule-based and traceable**.  
+The LLM supports interpretation and structured extraction, but does not directly invent the final score.
+
+### Discounted cash flow and scenarios
+
+The financial engine supports:
+
+- baseline case
+- downside case
+- severe downside case
+
+This allows the user to move from “Can this shop work?” to “How fragile is the lease under weaker conditions?”
+
+### Candidate site comparison
+
+Users can compare up to **three real candidate sites** they selected themselves.
+
+The system does **not** invent alternative addresses.  
+It compares user-provided candidates under the same commercial assumptions.
+
+### What-if simulator
+
+The workspace includes interactive controls for:
+
+- traffic
+- spend
+- rent
+
+This lets the user see how lease viability changes in real time.
+
+### Anonymous outcome calibration
+
+The system also includes a local outcome-recording flow:
+
+- record actual operating outcome
+- export anonymous JSON
+- import anonymous JSON
+- review sample count and basic error signals
+
+This is intended to support future model calibration without exporting images or raw address text.
+
+## Why This Is More Than a Generic AI Demo
+
+Generic AI can describe a photo.
+
+FrontMatter is different because it encodes a **decision workflow**:
+
+- visual site review
+- location verification
+- lease screening
+- F&B readiness capture
+- market observations
+- discounted cash flow
+- scenario testing
+- candidate comparison
+
+The value is not “AI says this shop looks good.”  
+The value is turning fragmented lease information into a structured business judgment process.
+
+## Product Scope
+
+FrontMatter is currently best described as:
+
+> **a commercial lease screening and due diligence support system**
+
+It is **not** a replacement for:
+
+- a broker
+- legal advice
+- fire / mechanical / utilities consultants
+- landlord negotiation
+- a full valuation report
+
+It does **not** guarantee:
+
+- profitability
+- actual turnover
+- actual market rent
+- final licensing approval
+
+That boundary is intentional. It keeps the product credible.
+
+## Current System Design
+
+### Frontend
 
 - Next.js
 - React
@@ -178,7 +247,7 @@ http://127.0.0.1:8080
 - Tailwind CSS
 - Leaflet
 
-### 后端
+### Backend
 
 - FastAPI
 - SQLAlchemy
@@ -186,60 +255,83 @@ http://127.0.0.1:8080
 - Alembic
 - Redis
 
-### 基础服务
+### Infrastructure
 
+- Docker Compose
 - PostgreSQL + pgvector
 - Redis
 - Nginx
-- Docker Compose
 
-## 当前模型配置
+## Model Configuration
 
-当前仓库默认按以下方式配置：
+This repository is currently configured around:
 
-- LLM 提供商：`GLM`
-- Base URL：`https://open.bigmodel.cn/api/paas/v4`
-- 模型：`glm-4.1v-thinking-flash`
+- **LLM provider**: GLM
+- **Base URL**: `https://open.bigmodel.cn/api/paas/v4`
+- **Model**: `glm-4.1v-thinking-flash`
 
-说明：
+The model is used for:
 
-- LLM 主要用于空间理解、结构化提取和建议文本
-- 最终数值总分与现金流逻辑不直接由 LLM 决定
+- visual understanding
+- structured extraction
+- advisory language
 
-## 需要的外部能力
+The model is **not** the direct source of the final financial score.
 
-### 1. GLM API Key
+## External Services
 
-需要配置：
+### GLM API key
+
+Required:
 
 ```text
 FRONTMATTER_LLM_API_KEY
 ```
 
-### 2. Google Places API Key
+### Google Places API key
 
-需要配置：
+Required:
 
 ```text
 FRONTMATTER_GOOGLE_PLACES_API_KEY
 ```
 
-官方申请说明：
+Official links:
 
 - https://developers.google.com/maps/documentation/places/web-service/get-api-key
 - https://console.cloud.google.com/google/maps-apis/credentials
 
-说明：
+Google Places is used for:
 
-- 地址自动补全和地址解析依赖 Google Places
-- 附近商家观察也依赖 Google Places
-- Key 只在后端使用，不应暴露到前端
+- address autocomplete
+- address resolution
+- nearby-place observations
 
-## 环境变量
+## Deployment
 
-仓库根目录使用 `.env`。
+The project is designed to run locally with Docker.
 
-至少需要确认这些变量：
+Default local entrypoint:
+
+```text
+http://127.0.0.1:8080
+```
+
+### Main startup command
+
+```bash
+sudo docker compose up -d --build
+```
+
+### Alternative portable compose
+
+```bash
+sudo docker compose -f docker-compose.portable.yml up -d --build
+```
+
+## Required Environment Variables
+
+At minimum:
 
 ```text
 FRONTMATTER_LLM_API_KEY=
@@ -257,7 +349,9 @@ FRONTMATTER_DEMO_AUTH_SECRET=replace-with-a-random-secret
 PUBLIC_HTTP_PORT=8080
 ```
 
-如果你本机通过代理访问外网，当前仓库也支持：
+### Docker proxy note
+
+If Docker image builds require a proxy:
 
 ```text
 DOCKER_BUILD_HTTP_PROXY=
@@ -268,149 +362,95 @@ DOCKER_RUNTIME_HTTPS_PROXY=
 DOCKER_RUNTIME_NO_PROXY=
 ```
 
-注意：
+Important:
 
-- `DOCKER_BUILD_*` 默认应留空。
-- 不要把 `DOCKER_BUILD_HTTP_PROXY` / `DOCKER_BUILD_HTTPS_PROXY` 设成 `http://127.0.0.1:7897`。构建容器里的 `127.0.0.1` 指向容器自己，不是宿主机，会导致 `npm ci` 或 `pip install` 报 `ECONNREFUSED 127.0.0.1:7897`。
-- 如果确实需要让 Docker 构建阶段走宿主机代理，请改成 Docker 可达地址，例如 `http://host.docker.internal:7897`，并确认你的 Docker 环境支持这个主机名。
+- leave `DOCKER_BUILD_*` empty unless needed
+- do **not** use `127.0.0.1` for build-stage proxies unless the proxy runs inside the build container
+- if a host proxy is required, use a Docker-reachable address such as `host.docker.internal`
 
-## 启动方式
+## Demo Access
 
-### 方案 A：当前默认 compose
+The current repository includes a lightweight shared-password demo gate for public testing.
 
-这是当前仓库主用的启动方式：
+It is suitable for:
 
-```bash
-sudo docker compose up -d --build
-```
+- demos
+- small-scale evaluation
+- competition review
 
-启动后访问：
+It is **not** a production-grade multi-user authentication system.
 
-```text
-http://127.0.0.1:8080
-```
+## API Surface
 
-当前默认 compose 的特点：
-
-- `api` 通过宿主机网络访问外部代理
-- `db` 映射到宿主机 `15432`
-- `redis` 映射到宿主机 `16379`
-
-这样做的原因是兼容本机已有服务和代理环境，避免占用常见的 `5432 / 6379`。
-
-### 方案 B：portable compose
-
-如果你的环境更适合纯容器内部互联，也可以使用：
-
-```bash
-sudo docker compose -f docker-compose.portable.yml up -d --build
-```
-
-## 常用检查命令
-
-查看容器状态：
-
-```bash
-sudo docker compose ps
-```
-
-查看日志：
-
-```bash
-sudo docker compose logs -f api
-sudo docker compose logs -f web
-sudo docker compose logs -f nginx
-```
-
-健康检查：
-
-```bash
-curl -i http://127.0.0.1:8080/api/v1/health
-```
-
-Session 检查：
-
-```bash
-curl -i http://127.0.0.1:8080/api/auth/session
-```
-
-地址搜索检查：
-
-```bash
-curl -i -X POST http://127.0.0.1:8080/api/locations/autocomplete \
-  -H 'Content-Type: application/json' \
-  --data '{"input":"Nanyang Technological University","sessionToken":"session-token-1"}'
-```
-
-## 当前接口能力
-
-### 认证
+### Auth
 
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
 - `GET /api/auth/session`
 
-### 地址
+### Location
 
 - `POST /api/locations/autocomplete`
 - `POST /api/locations/resolve`
 
-### 分析
+### Analysis
 
 - `POST /api/v1/analyze`
 
-### 报告
+### Reports
 
 - `GET /api/v1/reports/{id}`
 
-### 校准
+### Calibration
 
 - `POST /api/v1/calibration/outcomes`
 - `GET /api/v1/calibration/export`
 - `POST /api/v1/calibration/import`
 - `GET /api/v1/calibration/summary`
 
-## 已知边界
+## How to Evaluate the Demo
 
-这套系统现在更适合叫：
+For a fair evaluation, the committee should assess the product on three dimensions:
 
-> 商铺租赁初筛与尽调辅助系统
+### 1. Workflow quality
 
-而不是“自动投资决策系统”。
+Does the product meaningfully improve how a founder screens a commercial lease?
 
-原因很明确：
+### 2. Decision structure
 
-- 它输出的是基于输入假设与公开数据的经济模型
-- 不保证真实营业额
-- 不保证真实成交租金
-- 不能替代经纪、律师、会计或业主谈判
-- 推荐地址自动生成功能当前关闭，不会输出虚构备选点
+Does the product make the reasoning behind a lease decision more transparent and auditable?
 
-## 适合的使用场景
+### 3. Practical relevance
 
-- 小商户选址初筛
-- F&B 铺位租前尽调
-- 多候选铺位对比
-- 公开演示版本
-- 本地部署研究版本
+Does the combination of visual review, location context, and lease economics reflect a real Singapore small-business problem?
 
-## 不适合直接宣称的能力
+## Known Limitations
 
-- 保证盈利
-- 替代正式估值报告
-- 替代法律合规意见
-- 替代真实市场调研
-- 替代生产级账号权限系统
+This repository is a working product prototype, not a fully productionized commercial platform.
 
-## 当前仓库状态说明
+Current limitations include:
 
-当前 README 描述的是“仓库现在已经落地的功能”，不是路线图。
+- market benchmarks are contextual, not property-specific rental comparables
+- profitability is modeled under assumptions, not guaranteed
+- location observations are not direct demand measurement
+- calibration infrastructure exists, but large-scale real-world outcome data is not yet built out
+- the product is intentionally restricted to Singapore use cases
 
-如果后续你继续扩展：
+## Summary
 
-- 更完整的多用户权限
-- 真正的中心化校准数据平台
-- 自动候选地址生成
-- 更多官方市场数据接入
+FrontMatter is an AI-native lease due diligence system built around a real operational pain point:
 
-需要同步更新本 README，避免文档和实际代码再次脱节。
+**small businesses must make expensive commercial lease decisions with incomplete structure and weak analytical support.**
+
+This project demonstrates a practical product answer:
+
+- structured intake
+- visual analysis
+- Singapore-specific location handling
+- lease economics
+- stress testing
+- traceable decision support
+
+It is designed to help a founder answer a simple but expensive question before signing:
+
+> **Can this space become a sustainable business?**
