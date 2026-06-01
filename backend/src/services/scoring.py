@@ -3,6 +3,7 @@ from typing import Any
 from src.models.schemas.economics import LeaseEconomicsInput
 from src.models.schemas.intake import SpaceIntakeRequest
 from src.services.economics import project_lease_economics
+from src.services.singapore import is_within_singapore
 
 FNB_TERMS = ("cafe", "coffee", "bakery", "restaurant", "bar", "food", "bistro")
 
@@ -592,7 +593,7 @@ def _location_component(
     map_data: dict[str, Any],
     flags: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    in_singapore = 1.15 <= intake.latitude <= 1.48 and 103.55 <= intake.longitude <= 104.1
+    in_singapore = is_within_singapore(intake.latitude, intake.longitude)
     available = map_data.get("status") == "available"
     competitors = map_data.get("competitors", [])
     high_proximity = sum(1 for item in competitors if item.get("proximityLevel") == "HIGH")

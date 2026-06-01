@@ -63,3 +63,45 @@ async def test_placeholder_places_key_is_treated_as_unconfigured():
         await service.autocomplete("Tanjong Pagar", "session-token-1")
 
     await service.close()
+
+
+@pytest.mark.asyncio
+async def test_autocomplete_is_restricted_to_singapore():
+    captured = {}
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = request.content.decode()
+        return httpx.Response(200, json={"suggestions": []})
+
+    service = GeoService(
+        Settings(_env_file=None, google_places_api_key="test-google-places-key"),
+        client=httpx.AsyncClient(transport=httpx.MockTransport(handler)),
+    )
+
+    await service.autocomplete("Marina", "session-token-1")
+    await service.close()
+
+    assert '"includedRegionCodes":["SG"]' in captured["body"]
+    assert '"regionCode":"SG"' in captured["body"]
+
+
+@pytest.mark.asyncio
+async def test_resolve_rejects_locations_outside_singapore():
+    async def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "formattedAddress": "Shanghai",
+                "location": {"latitude": 31.2304, "longitude": 121.4737},
+            },
+        )
+
+    service = GeoService(
+        Settings(_env_file=None, google_places_api_key="test-google-places-key"),
+        client=httpx.AsyncClient(transport=httpx.MockTransport(handler)),
+    )
+
+    with pytest.raises(ValueError, match="outside the supported Singapore service area"):
+        await service.resolve("place-1", "session-token-1")
+
+    await service.close()

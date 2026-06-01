@@ -8,15 +8,15 @@ class StubGeoService:
     async def autocomplete(self, value: str, session_token: str):
         assert value == "Market Street"
         assert session_token == "session-token-1"
-        return [{"placeId": "place-1", "text": "Market Street, Test City"}]
+        return [{"placeId": "place-1", "text": "Market Street, Singapore"}]
 
     async def resolve(self, place_id: str, session_token: str):
         assert place_id == "place-1"
         assert session_token == "session-token-1"
         return {
-            "siteLabel": "Market Street, Test City",
-            "latitude": 31.2304,
-            "longitude": 121.4737,
+            "siteLabel": "Market Street, Singapore 048948",
+            "latitude": 1.284,
+            "longitude": 103.851,
         }
 
 
@@ -39,7 +39,7 @@ async def test_location_autocomplete_returns_sanitized_predictions(client):
 
     assert response.status_code == 200
     assert response.json() == {
-        "predictions": [{"placeId": "place-1", "text": "Market Street, Test City"}]
+        "predictions": [{"placeId": "place-1", "text": "Market Street, Singapore"}]
     }
 
 
@@ -51,7 +51,7 @@ async def test_location_resolution_returns_selected_coordinate(client):
     )
 
     assert response.status_code == 200
-    assert response.json()["latitude"] == 31.2304
+    assert response.json()["latitude"] == 1.284
     assert "api" not in response.json()
 
 

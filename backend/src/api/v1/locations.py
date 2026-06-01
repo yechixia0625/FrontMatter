@@ -26,7 +26,9 @@ async def autocomplete_location(
     try:
         predictions = await geo.autocomplete(request.input, request.sessionToken)
         return AutocompleteResponse(predictions=predictions)
-    except (RuntimeError, ValueError, httpx.HTTPError) as exc:
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (RuntimeError, httpx.HTTPError) as exc:
         logger.exception("Autocomplete failed for input=%r", request.input)
         raise HTTPException(status_code=503, detail="Location search is unavailable.") from exc
 
@@ -39,5 +41,7 @@ async def resolve_location(
 ) -> ResolvedLocation:
     try:
         return ResolvedLocation(**await geo.resolve(request.placeId, request.sessionToken))
-    except (RuntimeError, ValueError, httpx.HTTPError) as exc:
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except (RuntimeError, httpx.HTTPError) as exc:
         raise HTTPException(status_code=503, detail="Location resolution is unavailable.") from exc

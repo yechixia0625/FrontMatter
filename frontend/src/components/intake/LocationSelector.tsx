@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Crosshair, MapPin, Search } from "lucide-react";
+import { isWithinSingapore } from "@/lib/singapore";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nProvider";
 import { isUnauthorizedError } from "@/services/authService";
@@ -69,6 +70,11 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
     setError(null);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
+        if (!isWithinSingapore(coords.latitude, coords.longitude)) {
+          setError(t("location.error.unsupportedRegion"));
+          setPending(false);
+          return;
+        }
         onChange({ mode: "current", latitude: coords.latitude, longitude: coords.longitude });
         setPending(false);
       },
@@ -175,6 +181,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
           <p className="text-[11px] text-zinc-500">
             {t("location.searchHint")}
           </p>
+          <p className="text-[11px] text-zinc-600">{t("location.singaporeOnlyHint")}</p>
         </div>
       )}
       {error && <p className="font-mono text-xs text-red-400">{error}</p>}

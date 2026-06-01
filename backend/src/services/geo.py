@@ -4,6 +4,7 @@ import httpx
 
 from src.config.settings import Settings
 from src.models.schemas.intake import SpaceIntakeRequest
+from src.services.singapore import is_within_singapore
 
 
 class GeoService:
@@ -35,7 +36,12 @@ class GeoService:
             headers=self._headers(
                 "suggestions.placePrediction.placeId,suggestions.placePrediction.text.text"
             ),
-            json={"input": value, "sessionToken": session_token},
+            json={
+                "input": value,
+                "sessionToken": session_token,
+                "includedRegionCodes": ["SG"],
+                "regionCode": "SG",
+            },
         )
         response.raise_for_status()
         predictions: list[dict[str, str]] = []
@@ -56,6 +62,8 @@ class GeoService:
         response.raise_for_status()
         place = response.json()
         location = place["location"]
+        if not is_within_singapore(location["latitude"], location["longitude"]):
+            raise ValueError("Resolved location is outside the supported Singapore service area.")
         return {
             "siteLabel": place["formattedAddress"],
             "latitude": location["latitude"],
