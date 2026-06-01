@@ -18,7 +18,7 @@ async def test_nearby_places_uses_pro_fields_and_derives_proximity_level():
                 "places": [
                     {
                         "displayName": {"text": "Verified Cafe"},
-                        "location": {"latitude": 31.2314, "longitude": 121.4737},
+                        "location": {"latitude": 1.2844, "longitude": 103.8519},
                         "primaryType": "cafe",
                     }
                 ]
@@ -36,9 +36,9 @@ async def test_nearby_places_uses_pro_fields_and_derives_proximity_level():
         expected_rent=5200,
         square_meters=80,
         location_mode="address",
-        latitude=31.2304,
-        longitude=121.4737,
-        site_label="Selected Retail Site",
+        latitude=1.2836,
+        longitude=103.8519,
+        site_label="Selected Retail Site, Singapore",
     )
 
     result = await service.nearby_map_data(intake)

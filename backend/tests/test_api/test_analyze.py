@@ -16,9 +16,9 @@ class StubAnalysisService:
 
 VALID_LOCATION = {
     "location_mode": "address",
-    "latitude": "31.2304",
-    "longitude": "121.4737",
-    "site_label": "Selected Retail Site",
+    "latitude": "1.2836",
+    "longitude": "103.8519",
+    "site_label": "Selected Retail Site, Singapore",
 }
 
 
@@ -92,8 +92,8 @@ async def test_analyze_space_requires_resolved_label_for_address_location(client
             "expected_rent": "5200",
             "square_meters": "80",
             "location_mode": "address",
-            "latitude": "31.2304",
-            "longitude": "121.4737",
+            "latitude": "1.2836",
+            "longitude": "103.8519",
         },
     )
 
@@ -111,7 +111,7 @@ async def test_analyze_space_rejects_invalid_location_coordinates(client):
             "square_meters": "80",
             "location_mode": "current",
             "latitude": "95",
-            "longitude": "121.4737",
+            "longitude": "103.8519",
         },
     )
 

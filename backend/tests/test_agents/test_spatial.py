@@ -23,8 +23,8 @@ def intake_with_png():
         expected_rent=5200,
         square_meters=80,
         location_mode="current",
-        latitude=31.2304,
-        longitude=121.4737,
+        latitude=1.2836,
+        longitude=103.8519,
     )
 
 

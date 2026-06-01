@@ -57,5 +57,5 @@ alembic/versions/*.pyc
 # Agent
 .agents/
 .claude/
-docs/
+docs/superpowers/
 .superpowers/

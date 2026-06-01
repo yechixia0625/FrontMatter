@@ -1,8 +1,11 @@
-.PHONY: up down build logs lint test migrate
+.PHONY: up down build rebuild logs lint test test-backend test-frontend migrate
 
 # Docker
 up:
 	docker compose up -d
+
+rebuild:
+	docker compose up -d --build
 
 down:
 	docker compose down
@@ -27,8 +30,15 @@ lint:
 
 # Testing
 test:
+	$(MAKE) test-backend
+	$(MAKE) test-frontend
+
+test-backend:
 	cd backend && pytest
-	cd frontend && npm test
+
+test-frontend:
+	cd frontend && npm run lint
+	cd frontend && npm run build -- --webpack
 
 # Database
 migrate:

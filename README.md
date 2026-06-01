@@ -14,6 +14,36 @@ The system combines:
 
 FrontMatter is designed as a decision-support product, not a “guaranteed success” predictor.
 
+## Quick Start
+
+### 1. Start the system
+
+```bash
+sudo docker compose up -d --build
+```
+
+### 2. Open the demo
+
+```text
+http://127.0.0.1:8080
+```
+
+### 3. Sign in
+
+- Username: `demo`
+- Password: `FrontMatterDemo2026!`
+
+### 4. What should work immediately
+
+- login
+- image upload
+- Singapore address search
+- Singapore-only geolocation validation
+- score and risk output
+- discounted cash flow panel
+- what-if simulation
+- candidate site comparison
+
 ## Project Idea
 
 **FrontMatter turns Singapore shop leases into structured go / no-go business decisions.**
@@ -86,6 +116,47 @@ It produces a discounted lease economics view, including:
 - scenario comparison
 
 Stress testing is built in so users can see what happens under weaker demand or tighter economics.
+
+## Completed vs. Roadmap
+
+### Completed in this repository
+
+- deployable Docker stack
+- end-to-end intake flow
+- spatial blueprint output
+- Singapore-only location support
+- Google Places-backed location search
+- traceable score output
+- discounted cash flow and scenario analysis
+- candidate site comparison
+- anonymous calibration workflow
+
+### Roadmap / partial capability
+
+- property-specific rental comparables
+- enterprise-grade authentication
+- large-scale real-world calibration dataset
+- non-Singapore market support
+
+## Feature Matrix
+
+| Capability | Status | Notes |
+|---|---|---|
+| Photo upload | Complete | PNG, JPG, WEBP |
+| Spatial blueprint | Complete | Due diligence aid, not CAD |
+| Singapore-only address search | Complete | Restricted to Singapore |
+| Non-Singapore geolocation rejection | Complete | Unsupported region blocked |
+| Nearby-place map observations | Complete | Observation signal only |
+| Structured lease input form | Complete | Includes advanced assumptions |
+| F&B readiness capture | Complete | Singapore-oriented operational inputs |
+| Traceable scoring | Complete | Rule-based final score |
+| Discounted cash flow engine | Complete | NPV, IRR, payback |
+| Scenario stress testing | Complete | Baseline, downside, severe downside |
+| Candidate comparison | Complete | Up to 3 user-selected sites |
+| Anonymous calibration export/import | Complete | Local workflow |
+| Auto-generated alternative sites | Not implemented | Intentionally disabled |
+| Site-specific rental comparables | Partial | Context only |
+| Production-grade auth | Partial | Demo gate only |
 
 ## Core Features
 

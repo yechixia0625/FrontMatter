@@ -119,7 +119,7 @@ The Python backend must ultimately generate and stream this exact JSON structure
     "note": "Public market context only; site-specific rent is not inferred."
   },
   "mapData": {
-    "center": [31.2304, 121.4737],
+    "center": [1.2836, 103.8519],
     "locationMode": "address",
     "siteLabel": "Selected Site",
     "dataSource": "google_places",
