@@ -1,176 +1,265 @@
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 # FrontMatter
 
-**FrontMatter is a Singapore-focused commercial lease due diligence system for small businesses.**  
+**FrontMatter is a Singapore-focused commercial lease due diligence system for small businesses.**
+
 It helps founders evaluate whether a retail or F&B space is operationally suitable, commercially credible, and financially viable before they sign a lease.
 
-The system combines:
+FrontMatter combines:
 
 - space-photo analysis
-- address verification and nearby-place observation
+- Singapore-only address validation and nearby-place observation
 - structured lease and operating inputs
 - discounted cash flow analysis
 - scenario stress testing
 - candidate site comparison
 
-FrontMatter is designed as a decision-support product, not a “guaranteed success” predictor.
-
-## Quick Start
-
-### 1. Start the system
-
-```bash
-sudo docker compose up -d --build
-```
-
-### 2. Open the demo
-
-```text
-http://127.0.0.1:8080
-```
-
-### 3. Sign in
-
-- Username: `demo`
-- Password: `FrontMatterDemo2026!`
-
-### 4. What should work immediately
-
-- login
-- image upload
-- Singapore address search
-- Singapore-only geolocation validation
-- score and risk output
-- discounted cash flow panel
-- what-if simulation
-- candidate site comparison
+FrontMatter is a decision-support product, not a guaranteed success predictor.
 
 ## Project Idea
 
 **FrontMatter turns Singapore shop leases into structured go / no-go business decisions.**
 
-## Problem
+## What This Repository Contains
 
-In Singapore, renting the wrong commercial space is expensive.
+- `frontend/` — Next.js web application
+- `backend/` — FastAPI API, scoring engine, economics engine, tests
+- `scripts/` — local start, stop, and restart bash scripts
+- `docs/` — competition-facing supporting documents
+- `FrontMatter.md` — product and technical specification
 
-For small operators, especially in F&B, the decision is difficult because:
+## Runtime Model
 
-- rent is high
-- fit-out and reinstatement costs are significant
-- compliance constraints are real
-- site visits produce fragmented information
-- lease decisions are still often made with spreadsheets, broker conversations, and intuition
+This repository no longer depends on Docker.
 
-Today, the due diligence workflow is usually manual and scattered:
+FrontMatter now runs as a standard local development stack:
 
-1. inspect the unit
-2. ask about rent and lease terms
-3. check whether the space is suitable for the intended use
-4. estimate traffic, spend, and costs
-5. make a judgment call
+- frontend: Next.js dev server
+- backend: FastAPI + Uvicorn
+- database: local PostgreSQL
+- cache/session store: local Redis
 
-FrontMatter restructures that workflow into a traceable product.
+## Prerequisites
 
-## What FrontMatter Does
+Install these manually on your machine:
 
-FrontMatter accepts three categories of input:
+- Python `3.11`
+- Node.js `20`
+- PostgreSQL `16+`
+- Redis `7+`
 
-- **visual input**: a space photo or floorplan
-- **commercial input**: rent, size, lease term, fit-out budget, and operating assumptions
-- **location input**: either current on-site coordinates or a searched address
+Recommended Ubuntu packages:
 
-It then returns a structured assessment across three layers:
+```bash
+sudo apt update
+sudo apt install -y python3.11 python3.11-venv python3-pip nodejs npm postgresql redis-server
+```
 
-### 1. Spatial and operational fit
+If you use `nvm`, install Node.js 20 explicitly:
 
-The system generates a spatial blueprint and visual observations to surface:
+```bash
+nvm install 20
+nvm use 20
+```
 
-- circulation and layout issues
-- visibility opportunities
-- inefficient or constrained zones
-- operational friction signals
+## Required Accounts and API Keys
 
-This is not CAD-grade surveying. It is a due diligence aid for early-stage lease screening.
+You need:
 
-### 2. Market and location context
+- a GLM API key
+- a Google Places API key
 
-The system verifies the selected site and shows nearby same-category businesses using Google Places.
+Google Places API application link:
 
-It is designed specifically for **Singapore**:
+```text
+https://developers.google.com/maps/documentation/places/web-service/get-api-key
+```
 
-- address suggestions are restricted to Singapore
-- current-location mode rejects coordinates outside Singapore
-- market evidence is framed around Singapore public data
+## Local Setup
 
-Nearby businesses are treated as market observations, not as proof of demand.
+Before starting FrontMatter, make sure PostgreSQL and Redis are running.
 
-### 3. Lease economics
+Example on Ubuntu:
 
-FrontMatter does not stop at a simple monthly profit estimate.
+```bash
+sudo systemctl enable --now postgresql
+sudo systemctl enable --now redis-server
+```
 
-It produces a discounted lease economics view, including:
+### 1. Create the database
 
-- NPV
-- IRR
-- discounted payback
-- break-even daily customers
-- scenario comparison
+Create a local PostgreSQL database named `frontmatter`.
 
-Stress testing is built in so users can see what happens under weaker demand or tighter economics.
+Example:
 
-## Completed vs. Roadmap
+```bash
+sudo -u postgres psql
+CREATE DATABASE frontmatter;
+\q
+```
 
-### Completed in this repository
+If your local PostgreSQL username or password is different, update `.env` accordingly.
 
-- deployable Docker stack
-- end-to-end intake flow
-- spatial blueprint output
-- Singapore-only location support
-- Google Places-backed location search
-- traceable score output
-- discounted cash flow and scenario analysis
-- candidate site comparison
-- anonymous calibration workflow
+### 2. Copy the environment template
 
-### Roadmap / partial capability
+```bash
+cp .env.example .env
+```
 
-- property-specific rental comparables
-- enterprise-grade authentication
-- large-scale real-world calibration dataset
-- non-Singapore market support
+Then edit `.env` and set:
 
-## Feature Matrix
+- `FRONTMATTER_DATABASE_URL`
+- `FRONTMATTER_REDIS_URL`
+- `FRONTMATTER_LLM_API_KEY`
+- `FRONTMATTER_GOOGLE_PLACES_API_KEY`
+- `FRONTMATTER_DEMO_AUTH_PASSWORD`
+- `FRONTMATTER_DEMO_AUTH_SECRET`
 
-| Capability | Status | Notes |
-|---|---|---|
-| Photo upload | Complete | PNG, JPG, WEBP |
-| Spatial blueprint | Complete | Due diligence aid, not CAD |
-| Singapore-only address search | Complete | Restricted to Singapore |
-| Non-Singapore geolocation rejection | Complete | Unsupported region blocked |
-| Nearby-place map observations | Complete | Observation signal only |
-| Structured lease input form | Complete | Includes advanced assumptions |
-| F&B readiness capture | Complete | Singapore-oriented operational inputs |
-| Traceable scoring | Complete | Rule-based final score |
-| Discounted cash flow engine | Complete | NPV, IRR, payback |
-| Scenario stress testing | Complete | Baseline, downside, severe downside |
-| Candidate comparison | Complete | Up to 3 user-selected sites |
-| Anonymous calibration export/import | Complete | Local workflow |
-| Auto-generated alternative sites | Not implemented | Intentionally disabled |
-| Site-specific rental comparables | Partial | Context only |
-| Production-grade auth | Partial | Demo gate only |
+### 3. Install backend dependencies
+
+```bash
+make install-backend
+```
+
+This creates `backend/.venv` and installs the Python dependencies from `backend/pyproject.toml`.
+
+### 4. Install frontend dependencies
+
+```bash
+make install-frontend
+```
+
+This installs the Node.js dependencies from `frontend/package.json`.
+
+## Start, Stop, Restart
+
+The repository includes bash scripts for local lifecycle management.
+
+### Start
+
+```bash
+bash scripts/start.sh
+```
+
+or:
+
+```bash
+make start
+```
+
+### Stop
+
+```bash
+bash scripts/stop.sh
+```
+
+or:
+
+```bash
+make stop
+```
+
+### Restart
+
+```bash
+bash scripts/restart.sh
+```
+
+or:
+
+```bash
+make restart
+```
+
+## Local URLs
+
+Default local endpoints:
+
+- frontend: `http://127.0.0.1:3000`
+- backend: `http://127.0.0.1:8000`
+
+## Demo Credentials
+
+If demo auth is enabled in `.env`:
+
+- Username: `demo`
+- Password: value of `FRONTMATTER_DEMO_AUTH_PASSWORD`
+
+## Logs
+
+The start script writes runtime files to:
+
+```text
+.run/
+```
+
+Important files:
+
+- `.run/backend.pid`
+- `.run/frontend.pid`
+- `.run/logs/backend.log`
+- `.run/logs/frontend.log`
+
+To follow both logs:
+
+```bash
+make logs
+```
+
+## Database Migration
+
+Run migrations manually:
+
+```bash
+make migrate
+```
+
+Create a new Alembic migration:
+
+```bash
+make migrate-new msg="describe-change"
+```
+
+## Development Commands
+
+Backend only:
+
+```bash
+make dev-backend
+```
+
+Frontend only:
+
+```bash
+make dev-frontend
+```
+
+Run lint:
+
+```bash
+make lint
+```
+
+Run tests:
+
+```bash
+make test
+```
 
 ## Core Features
 
 ### Photo-based intake
 
-- Upload `PNG`, `JPG`, or `WEBP`
-- Analyze storefront or interior space visuals
-- Generate a structured spatial blueprint
+- upload `PNG`, `JPG`, or `WEBP`
+- analyze storefront or interior visuals
+- generate a structured spatial blueprint
 
 ### Singapore-only location handling
 
 - `At site now`: uses device geolocation
 - `Search address`: resolves a Singapore address through Google Places
-- Non-Singapore geolocation is explicitly rejected
+- non-Singapore geolocation is explicitly rejected
 
 ### Structured lease and operating inputs
 
@@ -214,314 +303,59 @@ For restaurant and food-service use cases, the form also captures:
 - loading access
 - signage
 
-This helps the product reflect the operational reality of Singapore F&B site selection.
-
 ### Traceable scoring
 
-FrontMatter produces a structured score and supporting flags:
-
-- `0–100` score
-- score breakdown
-- risk flags
-- confidence level
-- verdict
-
-The numeric score is **rule-based and traceable**.  
-The LLM supports interpretation and structured extraction, but does not directly invent the final score.
-
-### Discounted cash flow and scenarios
-
-The financial engine supports:
-
-- baseline case
-- downside case
-- severe downside case
-
-This allows the user to move from “Can this shop work?” to “How fragile is the lease under weaker conditions?”
-
-### Candidate site comparison
-
-Users can compare up to **three real candidate sites** they selected themselves.
-
-The system does **not** invent alternative addresses.  
-It compares user-provided candidates under the same commercial assumptions.
-
-### What-if simulator
-
-The workspace includes interactive controls for:
-
-- traffic
-- spend
-- rent
-
-This lets the user see how lease viability changes in real time.
-
-### Anonymous outcome calibration
-
-The system also includes a local outcome-recording flow:
-
-- record actual operating outcome
-- export anonymous JSON
-- import anonymous JSON
-- review sample count and basic error signals
-
-This is intended to support future model calibration without exporting images or raw address text.
-
-## Why This Is More Than a Generic AI Demo
-
-Generic AI can describe a photo.
-
-FrontMatter is different because it encodes a **decision workflow**:
-
-- visual site review
-- location verification
-- lease screening
-- F&B readiness capture
-- market observations
-- discounted cash flow
-- scenario testing
-- candidate comparison
-
-The value is not “AI says this shop looks good.”  
-The value is turning fragmented lease information into a structured business judgment process.
-
-## Product Scope
-
-FrontMatter is currently best described as:
-
-> **a commercial lease screening and due diligence support system**
-
-It is **not** a replacement for:
-
-- a broker
-- legal advice
-- fire / mechanical / utilities consultants
-- landlord negotiation
-- a full valuation report
-
-It does **not** guarantee:
-
-- profitability
-- actual turnover
-- actual market rent
-- final licensing approval
-
-That boundary is intentional. It keeps the product credible.
-
-## Current System Design
-
-### Frontend
-
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- Leaflet
-
-### Backend
-
-- FastAPI
-- SQLAlchemy
-- AsyncPG
-- Alembic
-- Redis
-
-### Infrastructure
-
-- Docker Compose
-- PostgreSQL + pgvector
-- Redis
-- Nginx
-
-## Model Configuration
-
-This repository is currently configured around:
-
-- **LLM provider**: GLM
-- **Base URL**: `https://open.bigmodel.cn/api/paas/v4`
-- **Model**: `glm-4.1v-thinking-flash`
-
-The model is used for:
-
-- visual understanding
-- structured extraction
-- advisory language
-
-The model is **not** the direct source of the final financial score.
-
-## External Services
-
-### GLM API key
-
-Required:
-
-```text
-FRONTMATTER_LLM_API_KEY
-```
-
-### Google Places API key
-
-Required:
-
-```text
-FRONTMATTER_GOOGLE_PLACES_API_KEY
-```
-
-Official links:
-
-- https://developers.google.com/maps/documentation/places/web-service/get-api-key
-- https://console.cloud.google.com/google/maps-apis/credentials
-
-Google Places is used for:
-
-- address autocomplete
-- address resolution
-- nearby-place observations
-
-## Deployment
-
-The project is designed to run locally with Docker.
-
-Default local entrypoint:
-
-```text
-http://127.0.0.1:8080
-```
-
-### Main startup command
-
-```bash
-sudo docker compose up -d --build
-```
-
-### Alternative portable compose
-
-```bash
-sudo docker compose -f docker-compose.portable.yml up -d --build
-```
-
-## Required Environment Variables
-
-At minimum:
-
-```text
-FRONTMATTER_LLM_API_KEY=
-FRONTMATTER_LLM_BASE_URL=https://open.bigmodel.cn/api/paas/v4
-FRONTMATTER_LLM_MODEL=glm-4.1v-thinking-flash
-
-FRONTMATTER_GOOGLE_PLACES_API_KEY=
-FRONTMATTER_GOOGLE_PLACES_SEARCH_RADIUS_METERS=500
-
-FRONTMATTER_DEMO_AUTH_ENABLED=true
-FRONTMATTER_DEMO_AUTH_USERNAME=demo
-FRONTMATTER_DEMO_AUTH_PASSWORD=FrontMatterDemo2026!
-FRONTMATTER_DEMO_AUTH_SECRET=replace-with-a-random-secret
-
-PUBLIC_HTTP_PORT=8080
-```
-
-### Docker proxy note
-
-If Docker image builds require a proxy:
-
-```text
-DOCKER_BUILD_HTTP_PROXY=
-DOCKER_BUILD_HTTPS_PROXY=
-DOCKER_BUILD_NO_PROXY=
-DOCKER_RUNTIME_HTTP_PROXY=
-DOCKER_RUNTIME_HTTPS_PROXY=
-DOCKER_RUNTIME_NO_PROXY=
-```
-
-Important:
-
-- leave `DOCKER_BUILD_*` empty unless needed
-- do **not** use `127.0.0.1` for build-stage proxies unless the proxy runs inside the build container
-- if a host proxy is required, use a Docker-reachable address such as `host.docker.internal`
-
-## Demo Access
-
-The current repository includes a lightweight shared-password demo gate for public testing.
-
-It is suitable for:
-
-- demos
-- small-scale evaluation
-- competition review
-
-It is **not** a production-grade multi-user authentication system.
-
-## API Surface
-
-### Auth
-
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/session`
-
-### Location
-
-- `POST /api/locations/autocomplete`
-- `POST /api/locations/resolve`
-
-### Analysis
-
-- `POST /api/v1/analyze`
-
-### Reports
-
-- `GET /api/v1/reports/{id}`
-
-### Calibration
-
-- `POST /api/v1/calibration/outcomes`
-- `GET /api/v1/calibration/export`
-- `POST /api/v1/calibration/import`
-- `GET /api/v1/calibration/summary`
-
-## How to Evaluate the Demo
-
-For a fair evaluation, the committee should assess the product on three dimensions:
-
-### 1. Workflow quality
-
-Does the product meaningfully improve how a founder screens a commercial lease?
-
-### 2. Decision structure
-
-Does the product make the reasoning behind a lease decision more transparent and auditable?
-
-### 3. Practical relevance
-
-Does the combination of visual review, location context, and lease economics reflect a real Singapore small-business problem?
-
-## Known Limitations
-
-This repository is a working product prototype, not a fully productionized commercial platform.
-
-Current limitations include:
-
-- market benchmarks are contextual, not property-specific rental comparables
-- profitability is modeled under assumptions, not guaranteed
-- location observations are not direct demand measurement
-- calibration infrastructure exists, but large-scale real-world outcome data is not yet built out
-- the product is intentionally restricted to Singapore use cases
-
-## Summary
-
-FrontMatter is an AI-native lease due diligence system built around a real operational pain point:
-
-**small businesses must make expensive commercial lease decisions with incomplete structure and weak analytical support.**
-
-This project demonstrates a practical product answer:
-
-- structured intake
-- visual analysis
-- Singapore-specific location handling
-- lease economics
-- stress testing
-- traceable decision support
-
-It is designed to help a founder answer a simple but expensive question before signing:
-
-> **Can this space become a sustainable business?**
+- final numeric scoring is rule-based
+- LLM output does not directly set the final score
+- financial assumptions are visible and inspectable
+
+### Lease economics
+
+FrontMatter outputs:
+
+- NPV
+- IRR
+- discounted payback
+- break-even daily customers
+- baseline / downside / severe downside scenarios
+
+### Candidate comparison
+
+- compare up to 3 user-selected sites
+- keep business assumptions constant while comparing locations
+
+## Feature Status
+
+| Capability | Status | Notes |
+|---|---|---|
+| Shared demo login | Complete | Lightweight public-test gate |
+| Image upload | Complete | PNG, JPG, WEBP |
+| Spatial blueprint generation | Complete | Due diligence aid, not CAD measurement |
+| Singapore-only address autocomplete | Complete | Google Places restricted to Singapore |
+| Non-Singapore geolocation rejection | Complete | Unsupported region blocked |
+| Nearby-place map observations | Complete | Observation signal only |
+| Structured lease input form | Complete | Rent, size, lease term, fit-out, operating assumptions |
+| F&B readiness capture | Complete | Water, power, gas, exhaust, grease trap, etc. |
+| Rule-based traceable scoring | Complete | LLM does not directly set the final score |
+| Discounted cash flow engine | Complete | NPV, IRR, discounted payback, break-even customers |
+| Scenario stress testing | Complete | Baseline, downside, severe downside |
+| Interactive what-if simulation | Complete | Traffic, spend, rent controls in workspace |
+| Candidate site comparison | Complete | Up to 3 user-selected sites |
+| Anonymous outcome export/import | Complete | Local calibration workflow |
+| Public market evidence panel | Complete | Contextual benchmark display |
+| Auto-generated alternative locations | Not implemented | Intentionally disabled |
+| Site-specific rental comparables | Partial | Public context only |
+| Production-grade multi-user auth | Partial | Demo password only |
+
+## Current Technical Boundaries
+
+- this is a due diligence aid, not a legal, valuation, or surveying tool
+- market context is public-data-based, not property-specific rent intelligence
+- outcomes depend on user assumptions
+- authentication is demo-grade, not enterprise-grade
+
+## Supporting Documents
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Feature Status](docs/feature-status.md)
+- [Demo Walkthrough](docs/demo-walkthrough.md)

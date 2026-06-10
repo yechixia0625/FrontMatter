@@ -2,9 +2,9 @@
 
 ## Overview
 
-FrontMatter is a monorepo application with a web frontend, an async API backend, and a Docker-based local deployment model.
+FrontMatter is a monorepo application with a web frontend, an async API backend, and a local non-Docker runtime model.
 
-The system is designed to support a complete lease due diligence workflow:
+The system supports a complete lease due diligence workflow:
 
 1. collect a shop photo, location, and lease assumptions
 2. run spatial, market, and economics analysis
@@ -16,9 +16,10 @@ The system is designed to support a complete lease due diligence workflow:
 ```text
 backend/        FastAPI application, scoring, economics, tests
 frontend/       Next.js application, intake flow, workspace UI
-nginx/          Reverse proxy configuration
+scripts/        Local start, stop, and restart shell scripts
 docs/           Competition-facing documentation
-README.md       Project overview and deployment guide
+README.md       English setup and overview
+README.zh-CN.md Chinese setup and overview
 FrontMatter.md  Product and technical specification
 ```
 
@@ -58,19 +59,17 @@ Responsibilities:
 - discounted cash flow analysis
 - calibration import/export
 
-### Infrastructure
+### Local Infrastructure
 
-- PostgreSQL + pgvector
+- PostgreSQL
 - Redis
-- Nginx
-- Docker Compose
+- bash lifecycle scripts
 
 Responsibilities:
 
-- local deployment
 - persistence
-- reverse proxying
-- service isolation
+- lightweight local process management
+- session/cache storage
 
 ## Core Runtime Flow
 
@@ -118,9 +117,14 @@ The product is intentionally scoped to Singapore:
 - Singapore market framing
 - F&B operational inputs aligned with Singapore use cases
 
-### Local Deployability
+### Local Simplicity
 
-The repository is designed to be runnable through Docker with minimal local setup beyond API keys.
+The repository is designed to be runnable without Docker:
+
+- local PostgreSQL
+- local Redis
+- local frontend and backend processes
+- bash scripts for start, stop, and restart
 
 ## Current Technical Boundaries
 

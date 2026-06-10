@@ -1,27 +1,22 @@
-.PHONY: up down build rebuild logs lint test test-backend test-frontend migrate
+.PHONY: install install-backend install-frontend start stop restart logs lint test test-backend test-frontend migrate migrate-new dev-backend dev-frontend
 
-# Docker
-up:
-	docker compose up -d
+start:
+	bash scripts/start.sh
 
-rebuild:
-	docker compose up -d --build
+stop:
+	bash scripts/stop.sh
 
-down:
-	docker compose down
-
-build:
-	docker compose build
+restart:
+	bash scripts/restart.sh
 
 logs:
-	docker compose logs -f
+	tail -f .run/logs/backend.log .run/logs/frontend.log
 
-# Development
-dev-api:
-	cd backend && uvicorn src.app_factory:create_app --factory --reload --port 8000
+dev-backend:
+	cd backend && . .venv/bin/activate && uvicorn src.app_factory:create_app --factory --reload --host 127.0.0.1 --port 8000
 
-dev-web:
-	cd frontend && npm run dev
+dev-frontend:
+	cd frontend && API_PROXY_TARGET=http://127.0.0.1:8000 npm run dev -- --hostname 127.0.0.1 --port 3000
 
 # Linting
 lint:
@@ -42,12 +37,18 @@ test-frontend:
 
 # Database
 migrate:
-	cd backend && alembic upgrade head
+	cd backend && . .venv/bin/activate && alembic upgrade head
 
 migrate-new:
-	cd backend && alembic revision --autogenerate -m "$(msg)"
+	cd backend && . .venv/bin/activate && alembic revision --autogenerate -m "$(msg)"
 
 # Install
 install:
-	cd backend && pip install -e ".[dev]"
-	cd frontend && npm install
+	$(MAKE) install-backend
+	$(MAKE) install-frontend
+
+install-backend:
+	cd backend && python3.11 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip install -e ".[dev]"
+
+install-frontend:
+	cd frontend && npm ci

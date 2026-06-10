@@ -29,7 +29,8 @@ This file distinguishes between what is already implemented in the repository an
 
 ## What Is Production-Like Today
 
-- Docker deployment
+- local PostgreSQL + Redis runtime
+- bash start / stop / restart workflow
 - authenticated web workflow
 - end-to-end intake to analysis flow
 - real external integrations for GLM and Google Places

@@ -21,6 +21,7 @@ out/
 .env
 .env.local
 .env.*.local
+.run/
 
 # IDE
 .vscode/
@@ -33,7 +34,6 @@ out/
 .DS_Store
 Thumbs.db
 
-# Docker
 *.log
 .superpowers/
 
