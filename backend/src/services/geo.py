@@ -17,6 +17,7 @@ class GeoService:
         self._client = client or httpx.AsyncClient(
             base_url="https://places.googleapis.com/v1",
             timeout=15,
+            trust_env=settings.outbound_http_trust_env,
         )
 
     def _headers(self, field_mask: str | None = None) -> dict[str, str]:

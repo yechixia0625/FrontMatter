@@ -59,6 +59,13 @@ class Settings(BaseSettings):
             "LEASENS_LLM_TIMEOUT_SECONDS",
         ),
     )
+    outbound_http_trust_env: bool = Field(
+        default=False,
+        validation_alias=AliasChoices(
+            "FRONTMATTER_OUTBOUND_HTTP_TRUST_ENV",
+            "LEASENS_OUTBOUND_HTTP_TRUST_ENV",
+        ),
+    )
 
     # Google Places (server-side only)
     google_places_api_key: str = Field(

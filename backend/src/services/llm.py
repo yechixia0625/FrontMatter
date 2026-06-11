@@ -14,6 +14,7 @@ class LLMService:
             base_url=settings.llm_base_url,
             headers={"Authorization": f"Bearer {self._api_key}"},
             timeout=settings.llm_timeout_seconds,
+            trust_env=settings.outbound_http_trust_env,
         )
         self._model = settings.llm_model
 

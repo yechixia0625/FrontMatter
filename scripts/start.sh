@@ -9,9 +9,9 @@ source "$SCRIPT_DIR/common.sh"
 load_env
 ensure_runtime_dirs
 
-require_command "setsid" "Missing 'setsid'. Install util-linux before starting FrontMatter."
 require_command "npm" "Missing 'npm'. Install Node.js 20 before starting FrontMatter."
 require_file "$ROOT_DIR/backend/.venv/bin/alembic" "Missing backend virtualenv. Run: make install-backend"
+require_file "$ROOT_DIR/backend/.venv/bin/python" "Missing backend virtualenv. Run: make install-backend"
 require_file "$ROOT_DIR/backend/.venv/bin/uvicorn" "Missing backend dependencies. Run: make install-backend"
 require_file "$ROOT_DIR/frontend/node_modules" "Missing frontend dependencies. Run: make install-frontend"
 
@@ -21,6 +21,12 @@ remove_stale_pid "$FRONTEND_PID_FILE"
 if pid_is_running "$BACKEND_PID_FILE"; then
   echo "Backend is already running on ${FRONTMATTER_API_HOST}:${FRONTMATTER_API_PORT}."
 else
+  echo "Ensuring database exists..."
+  (
+    cd "$ROOT_DIR/backend"
+    "$ROOT_DIR/backend/.venv/bin/python" src/bootstrap_database.py
+  )
+
   echo "Running database migrations..."
   (
     cd "$ROOT_DIR/backend"
@@ -30,13 +36,23 @@ else
   echo "Starting backend on ${FRONTMATTER_API_HOST}:${FRONTMATTER_API_PORT}..."
   (
     cd "$ROOT_DIR/backend"
-    setsid "$ROOT_DIR/backend/.venv/bin/uvicorn" \
-      src.app_factory:create_app \
-      --factory \
-      --host "$FRONTMATTER_API_HOST" \
-      --port "$FRONTMATTER_API_PORT" \
-      --reload \
-      >"$LOG_DIR/backend.log" 2>&1 < /dev/null &
+    if command -v setsid >/dev/null 2>&1; then
+      setsid "$ROOT_DIR/backend/.venv/bin/uvicorn" \
+        src.app_factory:create_app \
+        --factory \
+        --host "$FRONTMATTER_API_HOST" \
+        --port "$FRONTMATTER_API_PORT" \
+        --reload \
+        >"$LOG_DIR/backend.log" 2>&1 < /dev/null &
+    else
+      nohup "$ROOT_DIR/backend/.venv/bin/uvicorn" \
+        src.app_factory:create_app \
+        --factory \
+        --host "$FRONTMATTER_API_HOST" \
+        --port "$FRONTMATTER_API_PORT" \
+        --reload \
+        >"$LOG_DIR/backend.log" 2>&1 < /dev/null &
+    fi
     echo $! > "$BACKEND_PID_FILE"
   )
 fi
@@ -47,9 +63,15 @@ else
   echo "Starting frontend on http://${FRONTMATTER_WEB_HOST}:${FRONTMATTER_WEB_PORT}..."
   (
     cd "$ROOT_DIR/frontend"
-    API_PROXY_TARGET="$API_PROXY_TARGET" \
-    setsid npm run dev -- --hostname "$FRONTMATTER_WEB_HOST" --port "$FRONTMATTER_WEB_PORT" \
-      >"$LOG_DIR/frontend.log" 2>&1 < /dev/null &
+    if command -v setsid >/dev/null 2>&1; then
+      API_PROXY_TARGET="$API_PROXY_TARGET" \
+      setsid npm run dev -- --hostname "$FRONTMATTER_WEB_HOST" --port "$FRONTMATTER_WEB_PORT" \
+        >"$LOG_DIR/frontend.log" 2>&1 < /dev/null &
+    else
+      API_PROXY_TARGET="$API_PROXY_TARGET" \
+      nohup npm run dev -- --hostname "$FRONTMATTER_WEB_HOST" --port "$FRONTMATTER_WEB_PORT" \
+        >"$LOG_DIR/frontend.log" 2>&1 < /dev/null &
+    fi
     echo $! > "$FRONTEND_PID_FILE"
   )
 fi
