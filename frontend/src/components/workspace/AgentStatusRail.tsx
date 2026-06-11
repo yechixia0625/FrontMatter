@@ -19,7 +19,7 @@ export function AgentStatusRail({ agentLogs, isComplete }: AgentStatusRailProps)
   const { t } = useI18n();
   return (
     <div className="border-b border-zinc-800 bg-zinc-950/90 px-4 py-2.5">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         {AGENT_ORDER.map((agent) => {
           const logs = agentLogs[agent.key] ?? [];
           const lastLog = [...logs].reverse().find((entry) => entry.message);

@@ -103,44 +103,143 @@ export default function IntakePage() {
   }
 
   return (
-    <main className="min-h-screen blueprint-grid flex items-center justify-center p-8">
-      <div className="w-full max-w-2xl space-y-8">
-        <div className="flex justify-end">
+    <main className="h-screen overflow-hidden bg-black">
+      <div className="flex h-10 items-center border-b border-zinc-800 px-4">
+        <span className="font-mono text-xs text-zinc-500">
+          <span className="text-white">{t("brand.name")}</span>
+        </span>
+        <span className="mx-2 text-zinc-700">/</span>
+        <span className="font-mono text-xs text-zinc-400">
+          {t("intake.tagline")}
+        </span>
+        <div className="ml-auto">
           <LocaleToggle />
         </div>
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">
-            {t("brand.name")}
-          </h1>
-          <p className="text-zinc-500 font-mono text-sm">
-            {t("intake.tagline")}
-          </p>
-        </div>
+      </div>
 
-        {/* Drop Zone */}
-        <DropZone file={file} onFileChange={setFile} />
-        {file && !supportedFile && (
-          <p className="text-xs font-mono text-red-500">
-            {t("intake.unsupportedFile")}
-          </p>
-        )}
+      <div className="grid h-[calc(100vh-2.5rem)] grid-cols-1 xl:grid-cols-[23rem_minmax(0,1fr)]">
+        <aside className="flex min-h-0 flex-col border-b border-zinc-800 xl:border-b-0 xl:border-r">
+          <div className="border-b border-zinc-800 px-5 py-4">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+              Intake
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-500">
+              <StatusBadge label="PHOTO" active={supportedFile} />
+              <StatusBadge label="LOCATION" active={location !== null} />
+              <StatusBadge label="BASIC" active={formValues.businessType.trim() !== ""} />
+              <StatusBadge label="READY" active={canAnalyze} />
+            </div>
+          </div>
 
-        {/* Form */}
-        <IntakeForm
-          values={formValues}
-          onChange={(key, value) =>
-            setFormValues((current) => ({ ...current, [key]: value }))
-          }
-        />
+          <div className="min-h-0 space-y-4 overflow-y-auto p-4">
+            <DropZone file={file} onFileChange={setFile} />
+            {file && !supportedFile && (
+              <p className="text-xs font-mono text-red-500">
+                {t("intake.unsupportedFile")}
+              </p>
+            )}
+            <LocationSelector value={location} onChange={setLocation} />
+            <CandidateSitesSelector candidates={candidateSites} onChange={setCandidateSites} />
+          </div>
+        </aside>
 
-        <LocationSelector value={location} onChange={setLocation} />
-        <CandidateSitesSelector candidates={candidateSites} onChange={setCandidateSites} />
+        <section className="flex min-h-0 flex-col">
+          <div className="border-b border-zinc-800 px-5 py-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+              <div className="space-y-1">
+                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                  Analysis Intake
+                </div>
+                <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+                  {t("brand.name")}
+                </h1>
+              </div>
+              <div className="grid grid-cols-1 gap-2 text-left sm:grid-cols-3 sm:text-right">
+                <MetricChip
+                  label={t("intake.expectedRent.label")}
+                  value={formValues.expectedRent || "--"}
+                />
+                <MetricChip
+                  label={t("intake.squareMeters.label")}
+                  value={formValues.squareMeters || "--"}
+                />
+                <MetricChip
+                  label={t("intake.leaseTermMonths.label")}
+                  value={formValues.leaseTermMonths || "--"}
+                />
+              </div>
+            </div>
+          </div>
 
-        {/* Analyze Button */}
-        <AnalyzeButton disabled={!canAnalyze} onClick={() => void handleAnalyze()} />
+          <div className="min-h-0 flex-1 overflow-y-auto p-5">
+            <IntakeForm
+              values={formValues}
+              onChange={(key, value) =>
+                setFormValues((current) => ({ ...current, [key]: value }))
+              }
+            />
+          </div>
+
+          <div className="border-t border-zinc-800 bg-black/95 px-5 py-4">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 md:grid-cols-4">
+                <FooterStatus
+                  label={t("intake.businessType.label")}
+                  value={formValues.businessType || "--"}
+                />
+                <FooterStatus
+                  label={t("location.title")}
+                  value={location ? "Verified" : "--"}
+                />
+                <FooterStatus
+                  label={t("candidate.title")}
+                  value={candidateSites.length ? String(candidateSites.length) : "0"}
+                />
+                <FooterStatus
+                  label="Photo"
+                  value={file?.name ?? "--"}
+                />
+              </div>
+              <div className="w-full xl:max-w-xs xl:shrink-0">
+                <AnalyzeButton disabled={!canAnalyze} onClick={() => void handleAnalyze()} />
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
+  );
+}
+
+function StatusBadge({ label, active }: { label: string; active: boolean }) {
+  return (
+    <div
+      className={`rounded border px-2 py-1 ${active ? "border-lime-300/40 bg-lime-300/10 text-lime-200" : "border-zinc-800 bg-zinc-950 text-zinc-600"}`}
+    >
+      {label}
+    </div>
+  );
+}
+
+function MetricChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded border border-zinc-800 bg-zinc-950/80 px-3 py-2">
+      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">
+        {label}
+      </div>
+      <div className="mt-1 font-mono text-sm text-zinc-100">{value}</div>
+    </div>
+  );
+}
+
+function FooterStatus({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded border border-zinc-800 bg-zinc-950/80 px-3 py-2">
+      <div className="truncate font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">
+        {label}
+      </div>
+      <div className="truncate font-mono text-xs text-zinc-200">{value}</div>
+    </div>
   );
 }
 

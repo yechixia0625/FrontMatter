@@ -119,9 +119,9 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
 
   return (
     <div className="space-y-4">
-      <section className="space-y-3">
+      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
         <SectionLabel>{t("intake.basic")}</SectionLabel>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
           <TextField
             label={t("intake.businessType.label")}
             placeholder={t("intake.businessType.placeholder")}
@@ -161,9 +161,9 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
         </div>
       </section>
 
-      <section className="space-y-3 border border-zinc-800 p-4">
+      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
         <SectionLabel>{t("intake.fnbReadiness")}</SectionLabel>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
           <Segmented
             label={t("intake.cooking.label")}
             value={values.cookingIntensity}
@@ -200,7 +200,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
           <ReadinessRow
             label={t("intake.readiness.water")}
             value={values.hasWaterSupply}
@@ -249,7 +249,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
         </div>
       </section>
 
-      <section className="border border-zinc-800">
+      <section className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/70">
         <button
           type="button"
           onClick={() => setAdvancedOpen((open) => !open)}
@@ -262,7 +262,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
           />
         </button>
         {advancedOpen && (
-          <div className="grid grid-cols-3 gap-3 border-t border-zinc-800 p-4">
+          <div className="grid grid-cols-1 gap-3 border-t border-zinc-800 p-4 md:grid-cols-2 2xl:grid-cols-3">
             <NumberField
               label={t("intake.rentFree.label")}
               placeholder="2"
@@ -529,7 +529,7 @@ function FieldShell({
 }
 
 const inputClassName = cn(
-  "w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm",
+  "h-10 w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm",
   "font-mono text-zinc-100 placeholder:text-zinc-600",
   "focus:border-zinc-600 focus:outline-none"
 );
@@ -552,7 +552,7 @@ function Segmented<T extends string>({
       <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
         {label}
       </span>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] border border-zinc-800">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] overflow-hidden rounded border border-zinc-800">
         {options.map(([optionValue, text]) => (
           <button
             key={optionValue}

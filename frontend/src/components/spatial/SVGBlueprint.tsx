@@ -56,8 +56,8 @@ export function SVGBlueprint({ blueprint }: SVGBlueprintProps) {
   const path = blueprint.flowPath.map((point) => `${point.x},${point.y}`).join(" ");
 
   return (
-    <div className="relative h-full w-full p-5">
-      <div className="absolute left-5 top-4 z-10">
+    <div className="relative h-full w-full p-3 sm:p-5">
+      <div className="absolute left-3 top-3 z-10 sm:left-5 sm:top-4">
         <p className="font-mono text-[10px] tracking-[0.22em] text-lime-300">
           AI PROPOSED OPERATING PLAN
         </p>
@@ -67,7 +67,7 @@ export function SVGBlueprint({ blueprint }: SVGBlueprintProps) {
       </div>
       <svg
         viewBox={`0 0 100 ${height}`}
-        className="h-full w-full pt-10"
+        className="h-full w-full pt-12 sm:pt-10"
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>
@@ -109,11 +109,11 @@ export function SVGBlueprint({ blueprint }: SVGBlueprintProps) {
           </>
         )}
       </svg>
-      <div className="absolute bottom-5 left-5 right-5 flex flex-wrap gap-2">
+      <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-2 sm:bottom-5 sm:left-5 sm:right-5">
         {blueprint.zoneInsights.map((insight) => (
           <div
             key={`${insight.title}-${insight.x}`}
-            className={`max-w-[48%] border bg-black/90 px-3 py-2 font-mono ${
+            className={`w-full border bg-black/90 px-3 py-2 font-mono sm:max-w-[48%] ${
               insight.type === "opportunity" ? "border-lime-300/40" : "border-red-400/40"
             }`}
           >

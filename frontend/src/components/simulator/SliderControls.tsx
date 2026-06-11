@@ -30,7 +30,7 @@ export function SliderControls({
 }: SliderControlsProps) {
   const { t } = useI18n();
   return (
-    <div className="h-full flex items-center gap-8 px-6">
+    <div className="flex h-full flex-col gap-5 px-4 py-4 md:flex-row md:items-center md:gap-8 md:px-6 md:py-0">
       {/* Traffic Slider */}
       <div className="flex-1 space-y-1">
         <div className="flex items-center justify-between">

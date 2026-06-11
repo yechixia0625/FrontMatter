@@ -48,7 +48,7 @@ install:
 	$(MAKE) install-frontend
 
 install-backend:
-	cd backend && python3.11 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip install -e ".[dev]"
+	cd backend && python -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip install -e ".[dev]"
 
 install-frontend:
 	cd frontend && npm ci
