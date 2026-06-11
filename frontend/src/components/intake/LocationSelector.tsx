@@ -107,7 +107,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
   }
 
   return (
-    <section className="border border-zinc-800 bg-zinc-950/70 rounded-lg p-4 space-y-4">
+    <section className="space-y-4 rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs tracking-[0.18em] text-zinc-500">{t("location.title")}</span>
         {value && <span className="font-mono text-[10px] text-lime-300">{t("location.verified")}</span>}
@@ -117,21 +117,21 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
           type="button"
           onClick={() => switchMode("current")}
           className={cn(
-            "flex items-center justify-center gap-2 px-3 py-2 border rounded font-mono text-xs",
+            "flex min-h-11 min-w-0 items-center justify-center gap-2 rounded border px-2 py-2 font-mono text-[11px] sm:px-3 sm:text-xs",
             mode === "current" ? "border-lime-300 text-lime-200 bg-lime-300/5" : "border-zinc-800 text-zinc-500"
           )}
         >
-          <Crosshair className="w-3.5 h-3.5" /> {t("location.currentMode")}
+          <Crosshair className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t("location.currentMode")}</span>
         </button>
         <button
           type="button"
           onClick={() => switchMode("address")}
           className={cn(
-            "flex items-center justify-center gap-2 px-3 py-2 border rounded font-mono text-xs",
+            "flex min-h-11 min-w-0 items-center justify-center gap-2 rounded border px-2 py-2 font-mono text-[11px] sm:px-3 sm:text-xs",
             mode === "address" ? "border-lime-300 text-lime-200 bg-lime-300/5" : "border-zinc-800 text-zinc-500"
           )}
         >
-          <Search className="w-3.5 h-3.5" /> {t("location.addressMode")}
+          <Search className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{t("location.addressMode")}</span>
         </button>
       </div>
       {mode === "current" ? (
@@ -143,7 +143,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
             type="button"
             disabled={pending}
             onClick={locateCurrentSite}
-            className="w-full border border-zinc-700 py-2 font-mono text-xs hover:border-lime-300 disabled:opacity-50"
+            className="min-h-11 w-full rounded border border-zinc-700 px-3 py-2 font-mono text-xs hover:border-lime-300 disabled:opacity-50"
           >
             {pending
               ? t("location.locating")
@@ -161,7 +161,7 @@ export function LocationSelector({ value, onChange }: LocationSelectorProps) {
               onChange(null);
             }}
             placeholder={t("location.searchPlaceholder")}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-zinc-600"
+            className="h-11 w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 font-mono text-base focus:border-zinc-600 focus:outline-none sm:text-sm"
           />
           {visiblePredictions.length > 0 && (
             <div className="absolute top-full z-20 w-full border border-zinc-700 bg-zinc-950 shadow-xl">

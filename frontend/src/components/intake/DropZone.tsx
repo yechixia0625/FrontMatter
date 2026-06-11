@@ -49,7 +49,7 @@ export function DropZone({ file, onFileChange }: DropZoneProps) {
   return (
     <div
       className={cn(
-        "relative border-2 border-dashed rounded-lg p-12 transition-colors cursor-pointer",
+        "relative rounded-lg border-2 border-dashed p-4 transition-colors cursor-pointer sm:p-8 xl:p-12",
         isDragging
           ? "border-white bg-white/5"
           : file
@@ -70,11 +70,11 @@ export function DropZone({ file, onFileChange }: DropZoneProps) {
       />
 
       {file ? (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <FileImage className="w-8 h-8 text-zinc-400" />
-            <div>
-              <p className="text-sm font-medium">{file.name}</p>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{file.name}</p>
               <p className="text-xs text-zinc-500">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>
@@ -85,7 +85,7 @@ export function DropZone({ file, onFileChange }: DropZoneProps) {
               e.stopPropagation();
               onFileChange(null);
             }}
-            className="p-1 hover:bg-zinc-800 rounded"
+            className="shrink-0 rounded p-2 hover:bg-zinc-800"
           >
             <X className="w-4 h-4" />
           </button>

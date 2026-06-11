@@ -40,12 +40,12 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
   }
 
   return (
-    <section className="w-full max-w-md space-y-6 rounded-lg border border-zinc-800 bg-zinc-950/80 p-6 shadow-2xl">
+    <section className="w-full max-w-md space-y-5 rounded-lg border border-zinc-800 bg-zinc-950/90 p-4 shadow-2xl sm:space-y-6 sm:p-6">
       <div className="flex justify-end">
         <LocaleToggle />
       </div>
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold tracking-tight">{t("brand.name")}</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("brand.name")}</h1>
         <p className="font-mono text-xs tracking-[0.18em] text-zinc-500">
           {t("auth.publicTestAccess")}
         </p>
@@ -57,7 +57,7 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
           <input
             value={username}
             onChange={(event) => setUsername(event.target.value)}
-            className="w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus:border-zinc-600 focus:outline-none"
+            className="h-11 w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-base focus:border-zinc-600 focus:outline-none sm:text-sm"
             autoComplete="username"
           />
         </label>
@@ -67,7 +67,7 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm focus:border-zinc-600 focus:outline-none"
+            className="h-11 w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-base focus:border-zinc-600 focus:outline-none sm:text-sm"
             autoComplete="current-password"
           />
         </label>
@@ -75,7 +75,7 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
         <button
           type="submit"
           disabled={pending || username.trim() === "" || password === ""}
-          className="w-full rounded border border-zinc-700 py-2 font-mono text-xs tracking-[0.18em] text-zinc-100 hover:border-lime-300 disabled:opacity-50"
+          className="h-11 w-full rounded border border-zinc-700 py-2 font-mono text-xs tracking-[0.14em] text-zinc-100 hover:border-lime-300 disabled:opacity-50 sm:tracking-[0.18em]"
         >
           {pending ? t("auth.authenticating") : t("auth.enter")}
         </button>

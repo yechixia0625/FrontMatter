@@ -119,9 +119,9 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
 
   return (
     <div className="space-y-4">
-      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3 sm:p-4">
         <SectionLabel>{t("intake.basic")}</SectionLabel>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3">
           <TextField
             label={t("intake.businessType.label")}
             placeholder={t("intake.businessType.placeholder")}
@@ -161,9 +161,9 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
         </div>
       </section>
 
-      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+      <section className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3 sm:p-4">
         <SectionLabel>{t("intake.fnbReadiness")}</SectionLabel>
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Segmented
             label={t("intake.cooking.label")}
             value={values.cookingIntensity}
@@ -200,7 +200,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           <ReadinessRow
             label={t("intake.readiness.water")}
             value={values.hasWaterSupply}
@@ -253,7 +253,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
         <button
           type="button"
           onClick={() => setAdvancedOpen((open) => !open)}
-          className="flex w-full items-center justify-between px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500"
+          className="flex min-h-11 w-full items-center justify-between px-4 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500 sm:tracking-[0.18em]"
         >
           {t("intake.advanced")}
           <ChevronDown
@@ -262,7 +262,7 @@ export function IntakeForm({ values, onChange }: IntakeFormProps) {
           />
         </button>
         {advancedOpen && (
-          <div className="grid grid-cols-1 gap-3 border-t border-zinc-800 p-4 md:grid-cols-2 2xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 border-t border-zinc-800 p-3 sm:grid-cols-2 sm:p-4 2xl:grid-cols-3">
             <NumberField
               label={t("intake.rentFree.label")}
               placeholder="2"
@@ -529,7 +529,7 @@ function FieldShell({
 }
 
 const inputClassName = cn(
-  "h-10 w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm",
+  "h-11 w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-base sm:text-sm",
   "font-mono text-zinc-100 placeholder:text-zinc-600",
   "focus:border-zinc-600 focus:outline-none"
 );
@@ -552,15 +552,15 @@ function Segmented<T extends string>({
       <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
         {label}
       </span>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] overflow-hidden rounded border border-zinc-800">
+      <div className="grid grid-cols-3 overflow-hidden rounded border border-zinc-800">
         {options.map(([optionValue, text]) => (
           <button
             key={optionValue}
             type="button"
             onClick={() => onChange(optionValue)}
             className={cn(
-              "min-w-0 border-r border-zinc-800 px-2 py-2 font-mono text-[10px]",
-              "uppercase text-zinc-500 last:border-r-0 hover:text-zinc-200",
+              "min-h-11 min-w-0 border-r border-zinc-800 px-1.5 py-2 font-mono text-[10px] leading-tight sm:px-2",
+              "break-words uppercase text-zinc-500 last:border-r-0 hover:text-zinc-200",
               value === optionValue && "bg-lime-300/10 text-lime-200"
             )}
           >

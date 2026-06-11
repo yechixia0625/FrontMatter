@@ -96,20 +96,20 @@ export default function IntakePage() {
 
   if (!authenticated) {
     return (
-      <main className="min-h-screen blueprint-grid flex items-center justify-center p-8">
+      <main className="min-h-[100dvh] blueprint-grid flex items-start justify-center p-4 pt-10 sm:items-center sm:p-8">
         <LoginPanel onSuccess={() => setAuthenticated(true)} />
       </main>
     );
   }
 
   return (
-    <main className="h-screen overflow-hidden bg-black">
-      <div className="flex h-10 items-center border-b border-zinc-800 px-4">
+    <main className="min-h-[100dvh] bg-black xl:h-screen xl:overflow-hidden">
+      <div className="sticky top-0 z-30 flex min-h-12 flex-wrap items-center gap-y-1 border-b border-zinc-800 bg-black/95 px-3 py-2 backdrop-blur xl:static xl:h-10 xl:px-4 xl:py-0">
         <span className="font-mono text-xs text-zinc-500">
           <span className="text-white">{t("brand.name")}</span>
         </span>
         <span className="mx-2 text-zinc-700">/</span>
-        <span className="font-mono text-xs text-zinc-400">
+        <span className="hidden font-mono text-xs text-zinc-400 sm:inline">
           {t("intake.tagline")}
         </span>
         <div className="ml-auto">
@@ -117,8 +117,8 @@ export default function IntakePage() {
         </div>
       </div>
 
-      <div className="grid h-[calc(100vh-2.5rem)] grid-cols-1 xl:grid-cols-[23rem_minmax(0,1fr)]">
-        <aside className="flex min-h-0 flex-col border-b border-zinc-800 xl:border-b-0 xl:border-r">
+      <div className="flex flex-col xl:grid xl:h-[calc(100vh-2.5rem)] xl:grid-cols-[23rem_minmax(0,1fr)]">
+        <aside className="flex flex-col border-b border-zinc-800 xl:min-h-0 xl:border-b-0 xl:border-r">
           <div className="border-b border-zinc-800 px-5 py-4">
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
               Intake
@@ -131,7 +131,7 @@ export default function IntakePage() {
             </div>
           </div>
 
-          <div className="min-h-0 space-y-4 overflow-y-auto p-4">
+          <div className="space-y-4 p-4 xl:min-h-0 xl:overflow-y-auto">
             <DropZone file={file} onFileChange={setFile} />
             {file && !supportedFile && (
               <p className="text-xs font-mono text-red-500">
@@ -143,7 +143,7 @@ export default function IntakePage() {
           </div>
         </aside>
 
-        <section className="flex min-h-0 flex-col">
+        <section className="flex flex-col xl:min-h-0">
           <div className="border-b border-zinc-800 px-5 py-4">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
               <div className="space-y-1">
@@ -171,7 +171,7 @@ export default function IntakePage() {
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-5">
+          <div className="p-4 pb-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:p-5">
             <IntakeForm
               values={formValues}
               onChange={(key, value) =>
@@ -180,9 +180,9 @@ export default function IntakePage() {
             />
           </div>
 
-          <div className="border-t border-zinc-800 bg-black/95 px-5 py-4">
+          <div className="sticky bottom-0 z-20 border-t border-zinc-800 bg-black/95 px-4 py-3 backdrop-blur xl:static xl:px-5 xl:py-4">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="grid min-w-0 flex-1 grid-cols-2 gap-2 md:grid-cols-4">
+              <div className="hidden min-w-0 flex-1 grid-cols-2 gap-2 sm:grid md:grid-cols-4">
                 <FooterStatus
                   label={t("intake.businessType.label")}
                   value={formValues.businessType || "--"}
@@ -224,10 +224,10 @@ function StatusBadge({ label, active }: { label: string; active: boolean }) {
 function MetricChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded border border-zinc-800 bg-zinc-950/80 px-3 py-2">
-      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-600">
+      <div className="truncate font-mono text-[9px] uppercase tracking-[0.08em] text-zinc-600 sm:text-[10px] sm:tracking-[0.14em]">
         {label}
       </div>
-      <div className="mt-1 font-mono text-sm text-zinc-100">{value}</div>
+      <div className="mt-1 truncate font-mono text-sm text-zinc-100">{value}</div>
     </div>
   );
 }

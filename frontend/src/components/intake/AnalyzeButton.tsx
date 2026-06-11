@@ -17,7 +17,7 @@ export function AnalyzeButton({ disabled, onClick }: AnalyzeButtonProps) {
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "w-full flex items-center justify-center gap-2 py-3 rounded font-mono text-sm uppercase tracking-wider transition-all",
+        "flex min-h-12 w-full items-center justify-center gap-2 rounded font-mono text-sm uppercase tracking-[0.12em] transition-all sm:tracking-wider",
         disabled
           ? "bg-zinc-900 text-zinc-600 cursor-not-allowed"
           : "bg-white text-black hover:bg-zinc-200 active:scale-[0.98]"

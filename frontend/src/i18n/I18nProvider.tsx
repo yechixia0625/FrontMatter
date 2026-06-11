@@ -6,7 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, messages, type Locale } from "./messages";
@@ -18,23 +18,39 @@ interface I18nContextValue {
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
+const LOCALE_CHANGE_EVENT = "frontmatter-locale-change";
+
+function readStoredLocale(): Locale {
+  if (typeof window === "undefined") {
+    return DEFAULT_LOCALE;
+  }
+  const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+  return saved === "en" || saved === "zh" ? saved : DEFAULT_LOCALE;
+}
+
+function subscribeLocale(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(LOCALE_CHANGE_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(LOCALE_CHANGE_EVENT, callback);
+  };
+}
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window === "undefined") {
-      return DEFAULT_LOCALE;
-    }
-    const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-    return saved === "en" || saved === "zh" ? saved : DEFAULT_LOCALE;
-  });
+  const locale = useSyncExternalStore(
+    subscribeLocale,
+    readStoredLocale,
+    () => DEFAULT_LOCALE,
+  );
 
   useEffect(() => {
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
   }, [locale]);
 
   const setLocale = useCallback((nextLocale: Locale) => {
-    setLocaleState(nextLocale);
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+    window.dispatchEvent(new Event(LOCALE_CHANGE_EVENT));
   }, []);
 
   const t = useCallback(
